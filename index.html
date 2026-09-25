@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>TuProfe20 Lab · Ciencia y Tecnología 2.° Grado · Expedición Natural</title>
+    <!-- Tailwind CSS y GSAP para animaciones fluidas y reactivas -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            dark: '#060d1f',
+                            card: 'rgba(12, 26, 56, 0.92)',
+                            green: '#00ff88',
+                            cyan: '#00f0ff',
+                            yellow: '#ffea00',
+                            orange: '#ff6d00',
+                            pink: '#ff1493',
+                            purple: '#9d4edd',
+                            neonBlue: '#1e6091'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-cyan': '0 0 25px rgba(0, 240, 255, 0.55), inset 0 0 12px rgba(0, 240, 255, 0.25)',
+                        'neon-green': '0 0 25px rgba(0, 255, 136, 0.55), inset 0 0 12px rgba(0, 255, 136, 0.25)',
+                        'neon-yellow': '0 0 25px rgba(255, 234, 0, 0.6), inset 0 0 12px rgba(255, 234, 0, 0.25)',
+                        'neon-pink': '0 0 25px rgba(255, 20, 147, 0.6), inset 0 0 12px rgba(255, 20, 147, 0.25)'
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        /* FONDO DINÁMICO CON DEGRADADO ANIMADO EN VIVO */
+        @keyframes dynamicGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        html, body {
+            margin: 0; padding: 0; width: 100%; height: 100%; min-height: 100dvh;
+            background: linear-gradient(-45deg, #071530, #0f3a69, #1e1346, #094057, #061126);
+            background-size: 400% 400%;
+            animation: dynamicGradient 14s ease infinite;
+            color: #ffffff; font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+            touch-action: manipulation; user-select: none; -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+
+        .sci-card {
+            background: rgba(10, 24, 52, 0.94); backdrop-filter: blur(16px);
+            border: 2px solid rgba(0, 240, 255, 0.45); border-radius: 24px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.75), 0 0 25px rgba(0, 240, 255, 0.18);
+        }
+
+        /* ANIMACIÓN ROBOT FLOTANTE */
+        @keyframes robotBobbing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-7px); }
+        }
+        .robot-floating { animation: robotBobbing 3s ease-in-out infinite; }
+
+        @keyframes pulseAntenna {
+            0%, 100% { filter: drop-shadow(0 0 5px #ff2a85); }
+            50% { filter: drop-shadow(0 0 16px #ffea00); }
+        }
+        .antenna-glow { animation: pulseAntenna 1.4s ease-in-out infinite; }
+
+        @keyframes mouthEqualizer {
+            0%, 100% { transform: scaleY(0.4); }
+            50% { transform: scaleY(1.4); }
+        }
+        .is-talking .robot-mouth-bar { animation: mouthEqualizer 0.2s ease-in-out infinite alternate; transform-origin: center; }
+
+        /* FICHAS TÁCTILES Y CASILLAS */
+        .interactive-token {
+            cursor: grab; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, border-color 0.2s;
+            touch-action: none; min-height: 54px;
+        }
+        .interactive-token:active { cursor: grabbing; }
+        .interactive-token.is-selected {
+            transform: scale(1.16) translateY(-6px) !important;
+            border-color: #ffea00 !important;
+            box-shadow: 0 0 30px rgba(255, 234, 0, 0.95), 0 0 12px #ffea00 !important;
+            z-index: 60;
+        }
+
+        .drop-target {
+            transition: all 0.22s ease; cursor: pointer; min-height: 56px;
+        }
+        .drop-target.is-highlighted {
+            border-color: #00ff88 !important; background-color: rgba(0, 255, 136, 0.22) !important;
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.6) !important; transform: scale(1.03);
+        }
+
+        /* RAYOS LÁSER INTERACTIVOS */
+        #laser-canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 25; }
+        .laser-beam { stroke-width: 6; stroke-linecap: round; stroke: #ffea00; filter: drop-shadow(0 0 10px #ffea00); }
+        .laser-beam.correct { stroke: #00ff88; filter: drop-shadow(0 0 14px #00ff88); }
+        .laser-beam.wrong { stroke: #ff1493; filter: drop-shadow(0 0 14px #ff1493); }
+
+        .btn-sci {
+            transition: all 0.12s ease; box-shadow: 0 4px 0 rgba(0, 0, 0, 0.6);
+        }
+        .btn-sci:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.6); }
+
+        #confetti-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+
+        @media (max-width: 640px) {
+            .interactive-token { min-height: 48px; }
+            #bot-container { width: 72px; height: 78px; }
+            #bot-speech { font-size: 15px !important; line-height: 1.25 !important; }
+        }
+
+        @media print {
+            body { background: white !important; color: #000 !important; }
+            #app-shell > * { display: none !important; }
+            #modal-report { display: block !important; position: static !important; background: white !important; }
+            #modal-report > div { border: 2px solid #222 !important; background: white !important; color: black !important; box-shadow: none !important; }
+            #modal-report * { color: black !important; text-shadow: none !important; }
+            button, #laser-canvas, #confetti-canvas { display: none !important; }
+        }
+    </style>
+</head>
+<body class="flex flex-col w-full h-full relative select-none">
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <div id="app-shell" class="relative z-10 flex flex-col w-full min-h-screen max-w-4xl mx-auto px-2 sm:px-4 py-2.5 justify-between">
+
+        <!-- CABECERA SUPERIOR / HUD COMPACTO -->
+        <header class="w-full flex items-center justify-between py-2 px-3 sm:px-4 rounded-2xl sci-card mb-2 border-cyber-cyan/50 bg-black/60 shadow-neon-cyan flex-shrink-0">
+            <div class="flex items-center gap-2.5">
+                <div class="w-10 h-10 rounded-2xl bg-cyber-green/20 border-2 border-cyber-green flex items-center justify-center p-1 shadow-neon-green">
+                    <span class="text-2xl animate-pulse">⚡</span>
+                </div>
+                <div>
+                    <h1 class="text-sm sm:text-base font-black text-transparent bg-clip-text bg-gradient-to-r from-cyber-green via-cyber-cyan to-cyber-yellow uppercase tracking-wider">
+                        TuProfe20 Lab · Ciencia
+                    </h1>
+                    <span id="hud-level-tag" class="text-xs font-black text-cyber-yellow">MISIÓN 1 DE 16</span>
+                </div>
+            </div>
+
+            <!-- PROGRESO DEL LABORATORIO -->
+            <div class="flex-1 max-w-[130px] sm:max-w-[210px] mx-3">
+                <div class="flex justify-between text-[11px] sm:text-xs font-black text-gray-300 mb-0.5">
+                    <span>Avance</span>
+                    <span id="hud-progress-txt" class="text-cyber-green font-bold">0%</span>
+                </div>
+                <div class="w-full h-3 bg-black/80 rounded-full p-0.5 border border-white/20">
+                    <div id="hud-progress-bar" class="h-full bg-gradient-to-r from-cyber-cyan via-cyber-green to-cyber-yellow rounded-full transition-all duration-500 w-0"></div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5 sm:gap-2">
+                <button id="btn-show-menu" class="btn-sci bg-blue-700/80 border border-cyber-cyan px-2.5 py-1.5 rounded-xl text-xs sm:text-sm font-black text-white active:scale-95">
+                    🗺️ Misiones
+                </button>
+                <div class="bg-black/80 border border-cyber-yellow px-2.5 py-1 rounded-full flex items-center gap-1 shadow-neon-yellow">
+                    <span class="text-xs text-cyber-yellow">⭐</span>
+                    <span id="hud-score" class="text-sm sm:text-base font-black text-white">0</span>
+                </div>
+                <button id="btn-sound-toggle" class="w-9 h-9 rounded-full bg-white/10 border border-white/30 flex items-center justify-center text-sm" title="Sonido">🔊</button>
+            </div>
+        </header>
+
+        <!-- ROBOT COMPAÑERO BOTY (DISEÑO IDÉNTICO AL AVATAR SOLICITADO) -->
+        <section class="w-full flex items-center gap-3 sm:gap-4 p-2.5 sm:p-3.5 rounded-2xl sci-card mb-2 bg-gradient-to-r from-blue-950/90 via-slate-900/85 to-indigo-950/90 border-cyber-cyan/40 flex-shrink-0">
+            <div id="bot-container" class="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 robot-floating flex items-center justify-center">
+                <!-- SVG Vectorial Robot de Portada (Cuerpo lavanda, antenas rosa fucsia, cápsula amarilla, visor oscuro) -->
+                <svg id="robot-svg" viewBox="0 0 130 130" class="w-full h-full drop-shadow-[0_0_16px_rgba(0,240,255,0.7)]" fill="none">
+                    <defs>
+                        <!-- Gradiente del cuerpo / cabeza robot -->
+                        <linearGradient id="botHeadGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="50%" stop-color="#ece7fa"/>
+                            <stop offset="100%" stop-color="#cfc7ea"/>
+                        </linearGradient>
+                        <!-- Gradiente del domo amarillo superior -->
+                        <linearGradient id="yellowCapGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#ffea00"/>
+                            <stop offset="100%" stop-color="#ff9100"/>
+                        </linearGradient>
+                        <!-- Gradiente de las antenas fucsia -->
+                        <linearGradient id="pinkEarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#ff2a85"/>
+                            <stop offset="100%" stop-color="#d81b60"/>
+                        </linearGradient>
+                        <!-- Gradiente de ojos LED celestes -->
+                        <linearGradient id="eyeBlueGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#67e8f9"/>
+                            <stop offset="100%" stop-color="#00f0ff"/>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Antenas / Auriculares Fucsia Laterales -->
+                    <!-- Izquierda -->
+                    <rect x="14" y="52" width="10" height="30" rx="5" fill="url(#pinkEarGrad)"/>
+                    <line x1="19" y1="52" x2="19" y2="24" stroke="#ff2a85" stroke-width="4.5" stroke-linecap="round"/>
+                    <circle cx="19" cy="22" r="7.5" fill="#ff2a85" class="antenna-glow"/>
+                    
+                    <!-- Derecha -->
+                    <rect x="106" y="52" width="10" height="30" rx="5" fill="url(#pinkEarGrad)"/>
+                    <line x1="111" y1="52" x2="111" y2="24" stroke="#ff2a85" stroke-width="4.5" stroke-linecap="round"/>
+                    <circle cx="111" cy="22" r="7.5" fill="#ff2a85" class="antenna-glow"/>
+
+                    <!-- Cápsula / Domo Amarillo Central -->
+                    <rect x="47" y="16" width="36" height="15" rx="7.5" fill="url(#yellowCapGrad)" stroke="#ffb300" stroke-width="1.5"/>
+
+                    <!-- Cabeza Principal redondeada blanca/lavanda -->
+                    <rect x="22" y="27" width="86" height="82" rx="30" fill="url(#botHeadGrad)" stroke="#b39ddb" stroke-width="2"/>
+
+                    <!-- Visor Oscuro Curvo -->
+                    <rect x="31" y="43" width="68" height="42" rx="19" fill="#181533" stroke="#251b4e" stroke-width="2"/>
+
+                    <!-- Ojos LED en cápsula vertical (Celestes con brillo) -->
+                    <g id="bot-eyes-normal">
+                        <rect id="bot-eye-l" x="46" y="52" width="11" height="23" rx="5.5" fill="url(#eyeBlueGrad)" filter="drop-shadow(0 0 6px #00f0ff)"/>
+                        <rect id="bot-eye-r" x="73" y="52" width="11" height="23" rx="5.5" fill="url(#eyeBlueGrad)" filter="drop-shadow(0 0 6px #00f0ff)"/>
+                    </g>
+                    <!-- Ojos de alegría (^ ^) -->
+                    <g id="bot-eyes-happy" class="hidden">
+                        <path d="M44 65 Q 51.5 52 59 65" stroke="#00ff88" stroke-width="4.5" stroke-linecap="round" fill="none" filter="drop-shadow(0 0 6px #00ff88)"/>
+                        <path d="M71 65 Q 78.5 52 86 65" stroke="#00ff88" stroke-width="4.5" stroke-linecap="round" fill="none" filter="drop-shadow(0 0 6px #00ff88)"/>
+                    </g>
+                    <!-- Ojos confundidos / error (X X) -->
+                    <g id="bot-eyes-sad" class="hidden">
+                        <path d="M46 54 L 56 68" stroke="#ff1493" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M56 54 L 46 68" stroke="#ff1493" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M74 54 L 84 68" stroke="#ff1493" stroke-width="4" stroke-linecap="round"/>
+                        <path d="M84 54 L 74 68" stroke="#ff1493" stroke-width="4" stroke-linecap="round"/>
+                    </g>
+
+                    <!-- Boca / Ranura oscura de voz animada -->
+                    <g id="bot-mouth-area">
+                        <rect id="bot-mouth-slot" x="53" y="93" width="24" height="9" rx="4.5" fill="#2d224d"/>
+                        <g id="bot-mouth-waves" class="hidden">
+                            <rect class="robot-mouth-bar" x="55" y="95" width="3" height="5" rx="1.5" fill="#00ff88"/>
+                            <rect class="robot-mouth-bar" x="61" y="93" width="3" height="9" rx="1.5" fill="#00ff88"/>
+                            <rect class="robot-mouth-bar" x="67" y="93" width="3" height="9" rx="1.5" fill="#00ff88"/>
+                            <rect class="robot-mouth-bar" x="72" y="95" width="3" height="5" rx="1.5" fill="#00ff88"/>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+            
+            <div class="flex-1 flex flex-col justify-center">
+                <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs sm:text-sm font-black text-cyber-cyan tracking-wider uppercase flex items-center gap-1.5">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyber-green animate-ping"></span>
+                        Robot Boty dice:
+                    </span>
+                    <div class="flex items-center gap-1.5">
+                        <button id="btn-show-demo" class="btn-sci text-xs font-black text-black bg-gradient-to-r from-cyber-yellow to-cyber-orange px-2.5 py-1 rounded-xl shadow border border-yellow-300 active:scale-95">
+                            💡 Ejemplo
+                        </button>
+                        <button id="btn-speak-instruction" class="btn-sci text-xs font-black text-white bg-white/10 px-2.5 py-1 rounded-xl border border-white/20 active:scale-95">
+                            🗣️ Voz
+                        </button>
+                    </div>
+                </div>
+                <p id="bot-speech" class="text-base sm:text-lg font-black text-white leading-snug drop-shadow">
+                    ¡Bip-bop! Soy Boty. ¡Arrastra, vincula o completa para resolver cada reto de ciencias!
+                </p>
+            </div>
+        </section>
+
+        <!-- PANEL DE TÍTULO DE MISIÓN -->
+        <div class="flex items-center justify-between px-2 mb-1">
+            <div>
+                <span id="mission-step-count" class="text-xs font-black text-cyber-cyan tracking-wider">LABORATORIO PRÁCTICO</span>
+                <h2 id="mission-title" class="text-xl sm:text-2xl font-black text-white drop-shadow">1. ¿Vertebrado o Invertebrado?</h2>
+            </div>
+            <button id="next-mission" class="btn-sci bg-cyber-yellow text-slate-950 font-black text-sm px-4 py-2.5 rounded-xl shadow-neon-yellow active:scale-95" hidden>
+                Siguiente Misión ➔
+            </button>
+        </div>
+
+        <!-- ESCENARIO DINÁMICO (CERO PREGUNTAS MULTIPLE CHOICE, SOLO ARRASTRAR / VINCULAR / COMPLETAR) -->
+        <main class="relative flex-1 w-full flex flex-col items-center justify-center p-3 rounded-2xl sci-card overflow-hidden min-h-[420px] bg-gradient-to-b from-slate-900/95 to-blue-950/95">
+            <svg id="laser-canvas"></svg>
+
+            <!-- GUÍA INTERACTIVA -->
+            <div id="tap-helper-banner" class="opacity-0 transition-all duration-300 text-sm font-black bg-cyber-yellow/20 border border-cyber-yellow text-cyber-yellow px-4 py-1.5 rounded-full shadow-neon-yellow mb-2 pointer-events-none z-40 flex items-center gap-2">
+                <span>👆</span>
+                <span id="tap-helper-txt">Toca una ficha y luego toca su casilla (o arrástrala con tu dedo)</span>
+            </div>
+
+            <div id="game-stage" class="w-full h-full flex flex-col items-center justify-center gap-3 relative z-30"></div>
+
+            <!-- FEEDBACK POPUP -->
+            <div id="popup-feedback" class="absolute pointer-events-none opacity-0 scale-50 transition-all duration-300 flex flex-col items-center justify-center z-50">
+                <span id="popup-feedback-icon" class="text-7xl sm:text-8xl drop-shadow-[0_0_25px_#00ff88]">🌟</span>
+                <span id="popup-feedback-text" class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyber-green via-cyber-yellow to-cyber-cyan text-center">
+                    ¡EXCELENTE!
+                </span>
+            </div>
+        </main>
+
+        <!-- PIE DE PÁGINA -->
+        <footer class="flex items-center justify-between text-xs text-gray-300 py-2 px-2">
+            <span>✨ +100 puntos por misión · −20 por error</span>
+            <span>Centro Pedagógico Didáctica School · 2.° Grado</span>
+        </footer>
+
+        <!-- MODAL INICIO -->
+        <div id="modal-start" class="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-md">
+            <div class="sci-card p-6 sm:p-8 rounded-3xl max-w-md w-full text-center flex flex-col items-center border-cyber-cyan shadow-neon-cyan bg-slate-900">
+                <span class="text-6xl mb-2 animate-bounce">🤖🌱🐾</span>
+                <h1 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyber-cyan via-white to-cyber-green uppercase mb-1">
+                    TuProfe20 Lab
+                </h1>
+                <h2 class="text-xs sm:text-sm font-bold text-cyber-yellow tracking-widest uppercase mb-3">
+                    Ciencia y Tecnología · 2.º Primaria
+                </h2>
+                <p class="text-sm text-gray-200 mb-4 leading-relaxed font-bold">
+                    ¡Cero opciones múltiples! Arrastra fichas, vincula con rayos láser y completa diagramas sobre animales, plantas y fotosíntesis junto a Boty.
+                </p>
+                <div class="w-full text-left mb-1">
+                    <label class="text-xs font-bold text-cyber-cyan ml-1">Escribe tu nombre de Pequeño Científico:</label>
+                </div>
+                <input type="text" id="input-player-name" value="Pequeño Científico" maxlength="25" class="w-full bg-black/70 border-2 border-cyber-cyan rounded-2xl px-4 py-2.5 text-center text-white font-black text-xl mb-4 focus:outline-none focus:border-cyber-yellow transition-all">
+                <button id="btn-begin-game" class="btn-sci w-full bg-gradient-to-r from-cyber-cyan via-cyber-green to-cyber-yellow text-slate-950 font-black text-lg py-3.5 rounded-2xl uppercase tracking-wider shadow-neon-green">
+                    🚀 ¡Activar a Boty y Comenzar!
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL GUÍA / DEMOSTRACIÓN -->
+        <div id="modal-guide" class="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-md hidden">
+            <div class="sci-card p-5 sm:p-7 rounded-3xl max-w-lg w-full text-center flex flex-col items-center border-cyber-yellow shadow-neon-yellow bg-slate-900">
+                <div class="w-full flex items-center justify-between border-b border-white/20 pb-2 mb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-2xl">💡</span>
+                        <h3 id="guide-level-title" class="text-base sm:text-lg font-black text-cyber-yellow uppercase">CÓMO RESOLVER</h3>
+                    </div>
+                    <button id="btn-guide-replay-voice" class="text-xs font-bold text-cyber-yellow border border-cyber-yellow/40 rounded-xl px-2.5 py-1 bg-yellow-500/10 active:scale-95">
+                        🔊 Escuchar a Boty
+                    </button>
+                </div>
+                <div id="guide-animation-box" class="w-full bg-black/70 rounded-2xl p-4 border border-dashed border-cyber-cyan min-h-[140px] flex flex-col items-center justify-center my-2"></div>
+                <p id="guide-explanation-text" class="text-sm sm:text-base text-gray-100 font-bold mb-4 leading-relaxed"></p>
+                <button id="btn-start-level-now" class="btn-sci w-full bg-gradient-to-r from-cyber-yellow to-cyber-green text-slate-950 py-3 rounded-2xl font-black uppercase text-base shadow-neon-yellow">
+                    ¡Entendido! ¡A Resolver! ⚡
+                </button>
+            </div>
+        </div>
+
+        <!-- MODAL MENÚ DE NIVELES -->
+        <div id="modal-menu" class="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/85 backdrop-blur-md hidden">
+            <div class="w-full max-w-xl sci-card p-5 rounded-3xl flex flex-col items-center bg-slate-900 border-cyber-purple">
+                <div class="flex items-center gap-2 mb-3">
+                    <span class="text-3xl">🗺️</span>
+                    <h2 class="text-xl sm:text-2xl font-black text-white">Mapa de Misiones</h2>
+                </div>
+                <div id="levels-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full mb-4 max-h-[60vh] overflow-y-auto p-1"></div>
+                <div class="flex gap-2 w-full">
+                    <button id="btn-close-menu" class="btn-sci flex-1 bg-gray-800 border border-gray-600 text-white font-bold py-2.5 rounded-xl text-sm">
+                        Volver
+                    </button>
+                    <button id="btn-finish-early" class="btn-sci flex-1 bg-cyber-green text-slate-950 font-black py-2.5 rounded-xl text-sm">
+                        Ver Reporte 🏆
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL REPORTE FINAL -->
+        <div id="modal-report" class="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/90 backdrop-blur-md hidden">
+            <div class="sci-card p-6 rounded-3xl max-w-md w-full text-center flex flex-col items-center border-cyber-green shadow-neon-green bg-slate-900">
+                <span class="text-6xl mb-2 animate-bounce">🎖️</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-cyber-green uppercase mb-1">¡EXPEDICIÓN LOGRADA!</h2>
+                <p id="rep-student-name" class="text-lg font-bold text-cyber-cyan mb-4"></p>
+                
+                <div class="grid grid-cols-2 gap-2.5 w-full mb-4">
+                    <div class="bg-black/70 p-3 rounded-2xl border border-cyber-yellow">
+                        <span class="text-xs text-gray-300 block font-bold uppercase">Puntaje Total</span>
+                        <span id="rep-total-score" class="text-3xl font-black text-cyber-yellow">0</span>
+                    </div>
+                    <div class="bg-black/70 p-3 rounded-2xl border border-cyber-pink">
+                        <span class="text-xs text-gray-300 block font-bold uppercase">Errores</span>
+                        <span id="rep-error-count" class="text-3xl font-black text-cyber-pink">0</span>
+                    </div>
+                    <div class="bg-black/70 p-3 rounded-2xl border border-cyber-green col-span-2">
+                        <span class="text-xs text-gray-300 block font-bold uppercase">Misiones Superadas</span>
+                        <span id="rep-correct-count" class="text-2xl font-black text-cyber-green">0 / 16</span>
+                    </div>
+                </div>
+
+                <div class="flex w-full gap-2">
+                    <button id="btn-download-pdf" class="btn-sci flex-1 bg-red-600 text-white py-3 rounded-2xl font-black text-sm uppercase">
+                        📄 Guardar PDF
+                    </button>
+                    <button id="btn-play-again" class="btn-sci flex-1 bg-cyber-green text-slate-950 py-3 rounded-2xl font-black text-sm uppercase">
+                        🔄 Jugar Otra Vez
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const pendingTasks = new Set();
+        function scheduleTask(fn, ms) {
+            const id = window.setTimeout(() => { pendingTasks.delete(id); fn(); }, ms);
+            pendingTasks.add(id);
+            return id;
+        }
+        function cancelTasks() { pendingTasks.forEach(clearTimeout); pendingTasks.clear(); }
+
+        const $ = s => document.querySelector(s);
+        const $$ = s => document.querySelectorAll(s);
+
+        const gameState = {
+            levelIndex: 0,
+            score: 0,
+            errorsTotal: 0,
+            completedLevels: new Set(),
+            playerName: "Pequeño Científico",
+            soundEnabled: true,
+            totalLevels: 16,
+            roundDone: false
+        };
+
+        // --- SISTEMA DE AUDIO DIGITAL DE BOTY ---
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+
+        function playSfx(type) {
+            if (!gameState.soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'select') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(650, now);
+                    osc.frequency.exponentialRampToValueAtTime(1150, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.08);
+                    osc.start(now); osc.stop(now + 0.08);
+                } else if (type === 'drop') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(320, now);
+                    osc.frequency.exponentialRampToValueAtTime(680, now + 0.12);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.12);
+                    osc.start(now); osc.stop(now + 0.12);
+                } else if (type === 'laser') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(280, now + 0.14);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.14);
+                    osc.start(now); osc.stop(now + 0.14);
+                } else if (type === 'success') {
+                    const freqs = [523.25, 659.25, 783.99, 1046.50];
+                    freqs.forEach((f, i) => {
+                        const o = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        o.type = 'sine';
+                        o.frequency.setValueAtTime(f, now + i * 0.08);
+                        g.gain.setValueAtTime(0.12, now + i * 0.08);
+                        g.gain.linearRampToValueAtTime(0, now + i * 0.08 + 0.22);
+                        o.connect(g); g.connect(ctx.destination);
+                        o.start(now + i * 0.08); o.stop(now + i * 0.08 + 0.25);
+                    });
+                } else if (type === 'error') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(210, now);
+                    osc.frequency.setValueAtTime(130, now + 0.12);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0, now + 0.25);
+                    osc.start(now); osc.stop(now + 0.25);
+                }
+            } catch (e) { console.warn(e); }
+        }
+
+        // --- EXPRESIONES VISUALES Y REACCIONES DE BOTY ---
+        function setRobotMood(mood) {
+            const container = $('#bot-container');
+            const eyeNormal = $('#bot-eyes-normal');
+            const eyeHappy = $('#bot-eyes-happy');
+            const eyeSad = $('#bot-eyes-sad');
+            const mouthSlot = $('#bot-mouth-slot');
+            const mouthWaves = $('#bot-mouth-waves');
+
+            eyeNormal.classList.add('hidden');
+            eyeHappy.classList.add('hidden');
+            eyeSad.classList.add('hidden');
+
+            if (mood === 'happy') {
+                eyeHappy.classList.remove('hidden');
+                gsap.fromTo(container, { y: 0, scale: 1 }, { y: -14, scale: 1.12, yoyo: true, repeat: 1, duration: 0.28 });
+                scheduleTask(() => setRobotMood('normal'), 1300);
+            } else if (mood === 'sad') {
+                eyeSad.classList.remove('hidden');
+                gsap.fromTo(container, { x: -6 }, { x: 6, yoyo: true, repeat: 4, duration: 0.08, onComplete: () => { gsap.set(container, { x: 0 }); } });
+                scheduleTask(() => setRobotMood('normal'), 1300);
+            } else {
+                eyeNormal.classList.remove('hidden');
+            }
+        }
+
+        // --- SISTEMA DE VOZ AMIGABLE DEL ROBOT BOTY ---
+        let voiceTicket = 0;
+        function stopVoice() {
+            voiceTicket++;
+            if (window.speechSynthesis) speechSynthesis.cancel();
+            $('#bot-container').classList.remove('is-talking');
+            $('#bot-mouth-waves').classList.add('hidden');
+            $('#bot-mouth-slot').classList.remove('hidden');
+        }
+
+        function speakInstruction(text, onComplete = null) {
+            stopVoice();
+            if (!gameState.soundEnabled || !window.speechSynthesis) {
+                if (onComplete) onComplete();
+                return;
+            }
+            const ticket = voiceTicket;
+            const u = new SpeechSynthesisUtterance(text);
+            const voices = speechSynthesis.getVoices().filter(v => /^es/i.test(v.lang));
+            const friendly = voices.find(v => /Jorge|Sabina|Helena|Elvira|Monica|Paulina|Diego/i.test(v.name)) || voices[0];
+            if (friendly) u.voice = friendly;
+            u.lang = friendly?.lang || 'es-PE';
+            u.rate = 1.0; // Ágil y entusiasta
+            u.pitch = 1.25; // Voz de robot amigable
+            u.onstart = () => {
+                if (ticket !== voiceTicket) return;
+                $('#bot-container').classList.add('is-talking');
+                $('#bot-mouth-waves').classList.remove('hidden');
+                $('#bot-mouth-slot').classList.add('hidden');
+            };
+            u.onend = u.onerror = () => {
+                if (ticket !== voiceTicket) return;
+                $('#bot-container').classList.remove('is-talking');
+                $('#bot-mouth-waves').classList.add('hidden');
+                $('#bot-mouth-slot').classList.remove('hidden');
+                if (onComplete) onComplete();
+            };
+            speechSynthesis.speak(u);
+        }
+
+        function setRobotSpeech(text) {
+            $('#bot-speech').innerText = text;
+        }
+
+        function triggerConfetti() {
+            const canvas = $('#confetti-canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const cCtx = canvas.getContext('2d');
+            const colors = ['#00ff88', '#00f0ff', '#ffea00', '#ff1493', '#ffffff'];
+            let confettis = Array.from({ length: 65 }, () => ({
+                x: canvas.width / 2, y: canvas.height / 2,
+                vx: (Math.random() - 0.5) * 16, vy: (Math.random() - 0.7) * 16,
+                size: 7 + Math.random() * 8, color: colors[Math.floor(Math.random() * colors.length)],
+                alpha: 1
+            }));
+            function frame() {
+                cCtx.clearRect(0, 0, canvas.width, canvas.height);
+                let alive = false;
+                confettis.forEach(p => {
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.35; p.alpha -= 0.018;
+                    if (p.alpha > 0) {
+                        alive = true;
+                        cCtx.fillStyle = p.color;
+                        cCtx.globalAlpha = Math.max(0, p.alpha);
+                        cCtx.fillRect(p.x, p.y, p.size, p.size);
+                    }
+                });
+                if (alive) requestAnimationFrame(frame);
+                else cCtx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            frame();
+        }
+
+        // --- CONTROLADOR INTERACTIVO HÍBRIDO (TOQUE A TOQUE + DRAG & DROP TÁCTIL) ---
+        class UniversalDropController {
+            constructor(onMatchSuccess) {
+                this.onMatchSuccess = onMatchSuccess;
+                this.selectedItem = null;
+                this.destroyed = false;
+                this.activePointerId = null;
+                this.dragClone = null;
+
+                this.handleClick = this.onClick.bind(this);
+                this.handlePointerDown = this.onPointerDown.bind(this);
+                this.handlePointerMove = this.onPointerMove.bind(this);
+                this.handlePointerUp = this.onPointerUp.bind(this);
+
+                document.addEventListener('click', this.handleClick);
+                document.addEventListener('pointerdown', this.handlePointerDown);
+            }
+
+            destroy() {
+                this.destroyed = true;
+                document.removeEventListener('click', this.handleClick);
+                document.removeEventListener('pointerdown', this.handlePointerDown);
+                document.removeEventListener('pointermove', this.handlePointerMove);
+                document.removeEventListener('pointerup', this.handlePointerUp);
+                this.clearSelection();
+                if (this.dragClone) this.dragClone.remove();
+            }
+
+            clearSelection() {
+                if (this.selectedItem) {
+                    this.selectedItem.classList.remove('is-selected');
+                    this.selectedItem = null;
+                }
+                $$('.drop-target').forEach(z => z.classList.remove('is-highlighted'));
+                $('#tap-helper-banner')?.classList.add('opacity-0');
+            }
+
+            onClick(e) {
+                if (this.destroyed || gameState.roundDone || e.target.closest('[id^=modal-]')) return;
+                const token = e.target.closest('.interactive-token');
+                const target = e.target.closest('.drop-target');
+
+                if (token && !token.classList.contains('locked-token')) {
+                    if (this.selectedItem === token) {
+                        this.clearSelection();
+                        playSfx('select');
+                        return;
+                    }
+                    this.clearSelection();
+                    this.selectedItem = token;
+                    token.classList.add('is-selected');
+                    playSfx('select');
+                    $$('.drop-target').forEach(z => z.classList.add('is-highlighted'));
+                    const banner = $('#tap-helper-banner');
+                    if (banner) {
+                        $('#tap-helper-txt').innerText = "👉 ¡Ficha elegida! Da un toque en la casilla donde debe encajar";
+                        banner.classList.remove('opacity-0');
+                    }
+                    return;
+                }
+
+                if (target) {
+                    if (this.selectedItem) {
+                        const itm = this.selectedItem;
+                        this.clearSelection();
+                        playSfx('drop');
+                        this.onMatchSuccess(itm, target);
+                    } else {
+                        playSfx('error');
+                        gsap.fromTo(target, { x: -6 }, { x: 6, yoyo: true, repeat: 3, duration: 0.08 });
+                        const banner = $('#tap-helper-banner');
+                        if (banner) {
+                            $('#tap-helper-txt').innerText = "👆 Primero toca una ficha y luego toca esta casilla";
+                            banner.classList.remove('opacity-0');
+                        }
+                    }
+                }
+            }
+
+            onPointerDown(e) {
+                const token = e.target.closest('.interactive-token');
+                if (!token || token.classList.contains('locked-token') || gameState.roundDone) return;
+                this.activePointerId = e.pointerId;
+                this.startDragX = e.clientX;
+                this.startDragY = e.clientY;
+                this.draggedElement = token;
+
+                document.addEventListener('pointermove', this.handlePointerMove);
+                document.addEventListener('pointerup', this.handlePointerUp);
+            }
+
+            onPointerMove(e) {
+                if (!this.draggedElement || e.pointerId !== this.activePointerId) return;
+                const dist = Math.hypot(e.clientX - this.startDragX, e.clientY - this.startDragY);
+                if (dist > 10 && !this.dragClone) {
+                    this.clearSelection();
+                    const rect = this.draggedElement.getBoundingClientRect();
+                    this.dragClone = this.draggedElement.cloneNode(true);
+                    this.dragClone.style.position = 'fixed';
+                    this.dragClone.style.left = `${rect.left}px`;
+                    this.dragClone.style.top = `${rect.top}px`;
+                    this.dragClone.style.width = `${rect.width}px`;
+                    this.dragClone.style.pointerEvents = 'none';
+                    this.dragClone.style.zIndex = '9999';
+                    this.dragClone.style.opacity = '0.92';
+                    this.dragClone.classList.add('shadow-neon-cyan');
+                    document.body.appendChild(this.dragClone);
+                    this.draggedElement.style.opacity = '0.3';
+                    $$('.drop-target').forEach(z => z.classList.add('is-highlighted'));
+                }
+                if (this.dragClone) {
+                    this.dragClone.style.transform = `translate(${e.clientX - this.startDragX}px, ${e.clientY - this.startDragY}px) scale(1.12)`;
+                }
+            }
+
+            onPointerUp(e) {
+                if (e.pointerId !== this.activePointerId) return;
+                document.removeEventListener('pointermove', this.handlePointerMove);
+                document.removeEventListener('pointerup', this.handlePointerUp);
+
+                if (this.dragClone) {
+                    this.dragClone.remove();
+                    this.dragClone = null;
+                    this.draggedElement.style.opacity = '1';
+                    $$('.drop-target').forEach(z => z.classList.remove('is-highlighted'));
+
+                    const elemBelow = document.elementFromPoint(e.clientX, e.clientY);
+                    const target = elemBelow ? elemBelow.closest('.drop-target') : null;
+                    if (target) {
+                        playSfx('drop');
+                        this.onMatchSuccess(this.draggedElement, target);
+                    }
+                }
+                this.draggedElement = null;
+                this.activePointerId = null;
+            }
+        }
+        let currentCtrl = null;
+
+        function updateHUD() {
+            $('#hud-level-tag').innerText = `MISIÓN ${gameState.levelIndex + 1} DE ${gameState.totalLevels}`;
+            $('#hud-score').innerText = gameState.score;
+            const pct = Math.round((gameState.completedLevels.size / gameState.totalLevels) * 100);
+            $('#hud-progress-bar').style.width = `${pct}%`;
+            $('#hud-progress-txt').innerText = `${pct}%`;
+        }
+
+        function triggerPopup(txt, ok = true) {
+            const p = $('#popup-feedback');
+            $('#popup-feedback-text').innerText = txt;
+            $('#popup-feedback-icon').innerText = ok ? '🌟' : '💡';
+            gsap.fromTo(p, { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(1.7)" });
+            scheduleTask(() => {
+                gsap.to(p, { opacity: 0, scale: 0.6, duration: 0.25 });
+            }, 850);
+        }
+
+        function handleSuccess(praiseMsg) {
+            if (gameState.roundDone) return;
+            gameState.roundDone = true;
+            playSfx('success');
+            triggerConfetti();
+            setRobotMood('happy');
+            const firstTime = !gameState.completedLevels.has(gameState.levelIndex);
+            if (firstTime) gameState.score += 100;
+            gameState.completedLevels.add(gameState.levelIndex);
+            updateHUD();
+            triggerPopup(firstTime ? '+100 ¡LOGRADO!' : '¡EXCELENTE!');
+            setRobotSpeech(praiseMsg);
+            speakInstruction(praiseMsg);
+            $('#next-mission').hidden = false;
+        }
+
+        function handleError(el, errorMsg) {
+            if (gameState.roundDone) return;
+            playSfx('error');
+            setRobotMood('sad');
+            gameState.errorsTotal++;
+            gameState.score = Math.max(0, gameState.score - 20);
+            updateHUD();
+            if (el) {
+                gsap.fromTo(el, { x: -8 }, { x: 8, yoyo: true, repeat: 3, duration: 0.08 });
+            }
+            setRobotSpeech(errorMsg);
+            speakInstruction(errorMsg);
+        }
+
+        // =========================================================================
+        // BANCO DE 16 MISIONES DINÁMICAS: ARRASTRAR, VINCULAR O COMPLETAR
+        // =========================================================================
+        const gameLevels = [
+            // 1. VERTEBRADOS E INVERTEBRADOS: ARRASTRAR / CLASIFICAR (FICHAS 1 Y 2)
+            {
+                title: "Clasificación de Esqueletos",
+                instruction: "Arrastra cada animal a su caja: Vertebrado (con huesos) o Invertebrado (sin huesos).",
+                demoAudio: "¡Bip-bop! Los vertebrados tienen columna y esqueleto interno, como el perro o el caballo[cite: 1, 2]. Los invertebrados no tienen huesos, como el pulpo o la mosca[cite: 1, 2]. ¡Arrastra o toca cada uno a su lugar!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex gap-4 items-center">
+                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-4xl border-2 border-cyber-yellow shadow-neon-yellow">🐶</div>
+                            <span class="text-2xl font-black text-cyber-cyan">➔</span>
+                            <div class="w-32 h-16 bg-blue-900/60 border-2 border-cyber-cyan rounded-2xl flex flex-col items-center justify-center">
+                                <span class="text-xs font-black text-cyber-cyan">VERTEBRADOS</span>
+                                <span class="text-[11px] text-gray-200">Con huesos</span>
+                            </div>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    stage.innerHTML = `
+                        <div class="w-full flex gap-3 max-w-xl mb-3">
+                            <div class="drop-target flex-1 flex flex-col items-center p-3 rounded-2xl border-2 border-cyber-cyan bg-blue-950/50 min-h-[150px]" data-target="vert">
+                                <span class="text-sm font-black bg-black/80 px-3 py-1 rounded-full text-cyber-cyan border border-cyber-cyan mb-2 shadow-neon-cyan">🦴 VERTEBRADOS</span>
+                                <div class="inner flex flex-wrap gap-2 justify-center w-full"></div>
+                            </div>
+                            <div class="drop-target flex-1 flex flex-col items-center p-3 rounded-2xl border-2 border-cyber-green bg-emerald-950/50 min-h-[150px]" data-target="invert">
+                                <span class="text-sm font-black bg-black/80 px-3 py-1 rounded-full text-cyber-green border border-cyber-green mb-2 shadow-neon-green">🌿 INVERTEBRADOS</span>
+                                <div class="inner flex flex-wrap gap-2 justify-center w-full"></div>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex flex-wrap justify-center gap-2 max-w-md bg-black/60 p-3 rounded-2xl border border-white/20"></div>
+                    `;
+                    const animals = [
+                        { emoji: '🐶', name: 'Perro', type: 'vert' },
+                        { emoji: '🪰', name: 'Mosca', type: 'invert' },
+                        { emoji: '🐴', name: 'Caballo', type: 'vert' },
+                        { emoji: '🐙', name: 'Pulpo', type: 'invert' },
+                        { emoji: '🐟', name: 'Pez', type: 'vert' },
+                        { emoji: '🪱', name: 'Lombriz', type: 'invert' }
+                    ].sort(() => 0.5 - Math.random());
+
+                    animals.forEach(a => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3.5 py-2 bg-slate-800 border-2 border-white/30 rounded-2xl flex items-center gap-2 text-base font-black shadow';
+                        el.innerHTML = `<span class="text-2xl">${a.emoji}</span><span>${a.name}</span>`;
+                        el.dataset.type = a.type;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let count = animals.length;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.type === zone.dataset.target) {
+                            playSfx('drop');
+                            el.className = 'px-2.5 py-1 bg-black/70 rounded-xl text-xs sm:text-sm font-black border border-white/30 flex items-center gap-1.5 m-1';
+                            zone.querySelector('.inner').appendChild(el);
+                            gsap.from(el, { scale: 0.6, duration: 0.25 });
+                            count--;
+                            if (count === 0) handleSuccess("¡Bip! ¡Excelente! Separaste con éxito a los vertebrados de los invertebrados.");
+                        } else {
+                            handleError(el, "¡Bip! Ese animal no corresponde a ese grupo. ¿Tiene huesos o es blando?");
+                        }
+                    });
+                }
+            },
+
+            // 2. RAYO LÁSER: VINCULAR ESQUELETOS (FICHA 2)[cite: 2]
+            {
+                title: "Conexión Neural de Especies",
+                instruction: "1º Toca el animal a la izquierda y 2º Toca su característica a la derecha para unirlos con un rayo láser.",
+                demoAudio: "Conecta cada animal con su condición[cite: 2]: la rana y el águila tienen columna vertebral[cite: 2]; la araña y el caracol no tienen columna[cite: 2]. ¡Lanza los rayos!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex justify-between items-center w-full max-w-[240px]">
+                            <span class="text-3xl p-1 bg-white rounded-lg">🦅</span>
+                            <span class="text-cyber-green font-black">━━━</span>
+                            <span class="text-xs bg-blue-900 px-2 py-1 rounded text-white font-bold">Tiene columna</span>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    const pairs = [
+                        { emoji: '🦅', name: 'Águila', cat: 'Tienen columna vertebral' },
+                        { emoji: '🕷️', name: 'Araña', cat: 'No tienen columna' },
+                        { emoji: '🐸', name: 'Rana', cat: 'Tienen columna vertebral' },
+                        { emoji: '🐌', name: 'Caracol', cat: 'No tienen columna' }
+                    ];
+                    const left = [...pairs].sort(() => 0.5 - Math.random());
+                    const right = [
+                        { text: 'Tiene columna vertebral', match: 'Tienen columna vertebral' },
+                        { text: 'No tiene columna', match: 'No tienen columna' },
+                        { text: 'Tiene columna vertebral', match: 'Tienen columna vertebral' },
+                        { text: 'No tiene columna', match: 'No tienen columna' }
+                    ].sort(() => 0.5 - Math.random());
+
+                    stage.innerHTML = `
+                        <div class="w-full max-w-md flex justify-between items-center px-4 relative z-30">
+                            <div class="flex flex-col gap-2.5">
+                                ${left.map(i => `<button class="btn-l w-20 py-2.5 bg-slate-800 border-2 border-cyber-cyan rounded-2xl text-2xl font-black flex flex-col items-center shadow active:scale-95" data-cat="${i.cat}"><span>${i.emoji}</span><span class="text-xs text-gray-200">${i.name}</span></button>`).join('')}
+                            </div>
+                            <div class="flex flex-col gap-2.5">
+                                ${right.map(r => `<button class="btn-r w-44 py-3.5 bg-black/80 border-2 border-cyber-green rounded-2xl text-xs sm:text-sm font-black text-white shadow active:scale-95" data-cat="${r.match}">${r.text}</button>`).join('')}
+                            </div>
+                        </div>
+                    `;
+
+                    let aL = null, aR = null, solved = 0;
+                    const svg = $('#laser-canvas'); svg.innerHTML = '';
+
+                    const drawLine = (e1, e2, ok) => {
+                        const r1 = e1.getBoundingClientRect(), r2 = e2.getBoundingClientRect(), sr = svg.getBoundingClientRect();
+                        const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        l.setAttribute('x1', r1.right - sr.left);
+                        l.setAttribute('y1', r1.top + r1.height / 2 - sr.top);
+                        l.setAttribute('x2', r2.left - sr.left);
+                        l.setAttribute('y2', r2.top + r2.height / 2 - sr.top);
+                        l.setAttribute('class', `laser-beam ${ok ? 'correct' : 'wrong'}`);
+                        svg.appendChild(l);
+                        return l;
+                    };
+
+                    const verify = () => {
+                        if (aL && aR) {
+                            playSfx('laser');
+                            const ok = aL.dataset.cat === aR.dataset.cat;
+                            const line = drawLine(aL, aR, ok);
+                            if (ok) {
+                                playSfx('drop');
+                                aL.classList.add('opacity-40', 'pointer-events-none', 'border-cyber-green');
+                                aR.classList.add('opacity-40', 'pointer-events-none', 'border-cyber-green');
+                                solved++;
+                                if (solved === 4) scheduleTask(() => handleSuccess("¡Rayo láser completado! Cada animal fue conectado con su columna ósea."), 500);
+                            } else {
+                                handleError(null, "¡Bip! Conexión errónea. Recuerda si tiene huesos o caparazón blando.");
+                                const lNode = aL, rNode = aR;
+                                scheduleTask(() => {
+                                    if (svg.contains(line)) line.remove();
+                                    lNode.classList.remove('border-cyber-yellow', 'scale-105');
+                                    rNode.classList.remove('border-cyber-yellow', 'scale-105');
+                                }, 500);
+                            }
+                            aL = null; aR = null;
+                        }
+                    };
+
+                    $$('.btn-l').forEach(b => b.onclick = () => {
+                        if (b.classList.contains('pointer-events-none')) return;
+                        playSfx('select');
+                        $$('.btn-l').forEach(x => x.classList.remove('border-cyber-yellow', 'scale-105'));
+                        b.classList.add('border-cyber-yellow', 'scale-105'); aL = b; verify();
+                    });
+                    $$('.btn-r').forEach(b => b.onclick = () => {
+                        if (b.classList.contains('pointer-events-none')) return;
+                        playSfx('select');
+                        $$('.btn-r').forEach(x => x.classList.remove('border-cyber-yellow', 'scale-105'));
+                        b.classList.add('border-cyber-yellow', 'scale-105'); aR = b; verify();
+                    });
+                }
+            },
+
+            // 3. COMPLETAR RASGOS DE MAMÍFEROS (FICHA 3)
+            {
+                title: "Ficha Biológica del Mamífero",
+                instruction: "Arrastra o toca cada rasgo para completar los datos biológicos de los mamíferos.",
+                demoAudio: "Los mamíferos nacen del vientre (vivíparos), tienen piel con pelo y maman leche de su mamá[cite: 3, 7]. ¡Arrastra cada ficha a su lugar!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="text-sm font-bold text-white">Nacen del vientre: <span class="border-b-2 border-cyber-yellow text-cyber-yellow font-black">Vivíparos</span></div>
+                    `;
+                },
+                setup: (stage) => {
+                    stage.innerHTML = `
+                        <div class="w-full max-w-sm bg-black/60 p-4 rounded-2xl border border-cyber-yellow/40 flex flex-col gap-3 shadow mb-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-black text-gray-200">1. Por cómo nacen son:</span>
+                                <div class="drop-target w-32 h-10 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-sm font-black text-cyber-cyan" data-target="Vivíparos"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-black text-gray-200">2. Piel cubierta de:</span>
+                                <div class="drop-target w-32 h-10 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-sm font-black text-cyber-cyan" data-target="Pelo"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-black text-gray-200">3. De bebés toman:</span>
+                                <div class="drop-target w-32 h-10 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-sm font-black text-cyber-cyan" data-target="Leche"></div>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex gap-2.5 max-w-md"></div>
+                    `;
+
+                    const opts = ['Vivíparos', 'Pelo', 'Leche', 'Escamas'].sort(() => 0.5 - Math.random());
+                    opts.forEach(o => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3.5 py-2.5 bg-blue-900 border-2 border-cyber-cyan rounded-xl text-sm font-black text-white shadow';
+                        el.innerText = o; el.dataset.val = o;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let hits = 0;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.val === zone.dataset.target) {
+                            playSfx('drop');
+                            el.style.display = 'none';
+                            zone.innerText = el.dataset.val;
+                            zone.classList.remove('border-dashed');
+                            zone.classList.add('border-cyber-green', 'bg-cyber-green/20', 'text-cyber-green');
+                            hits++;
+                            if (hits === 3) handleSuccess("¡Bip-bip! ¡Ficha biológica de mamíferos completada a la perfección!");
+                        } else {
+                            handleError(el, "Esa característica no encaja en esa casilla.");
+                        }
+                    });
+                }
+            },
+
+            // 4. BIOMAS: AIRE Y AGUA (FICHA 4)
+            {
+                title: "Desplazamiento por Aire y Agua",
+                instruction: "Arrastra cada animal a su zona de movimiento: Cielo (Vuelan) o Mar (Nadan).",
+                demoAudio: "El águila y la abeja van al cielo porque vuelan[cite: 4]. La ballena y el delfín van al mar porque nadan[cite: 4]. ¡Colócalos en su ambiente!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex gap-3 text-sm">
+                            <span class="p-2 bg-sky-900/60 rounded">🦅 Vuela ➔ Cielo</span>
+                            <span class="p-2 bg-blue-900/60 rounded">🐬 Nada ➔ Mar</span>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    stage.innerHTML = `
+                        <div class="w-full flex gap-3 max-w-xl mb-3">
+                            <div class="drop-target flex-1 flex flex-col items-center p-3 rounded-2xl border-2 border-sky-400 bg-sky-950/50 min-h-[150px]" data-target="fly">
+                                <span class="text-sm font-black bg-black/80 px-3 py-1 rounded-full text-sky-300 mb-2 border border-sky-400">☁️ CIELO (Vuelan)</span>
+                                <div class="inner flex flex-wrap gap-1.5 justify-center"></div>
+                            </div>
+                            <div class="drop-target flex-1 flex flex-col items-center p-3 rounded-2xl border-2 border-blue-400 bg-blue-950/50 min-h-[150px]" data-target="swim">
+                                <span class="text-sm font-black bg-black/80 px-3 py-1 rounded-full text-blue-300 mb-2 border border-blue-400">🌊 MAR (Nadan)</span>
+                                <div class="inner flex flex-wrap gap-1.5 justify-center"></div>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex flex-wrap justify-center gap-2 max-w-md bg-black/60 p-2.5 rounded-2xl border border-white/20"></div>
+                    `;
+
+                    const animals = [
+                        { emoji: '🦅', name: 'Águila', zone: 'fly' },
+                        { emoji: '🐝', name: 'Abeja', zone: 'fly' },
+                        { emoji: '🐋', name: 'Ballena', zone: 'swim' },
+                        { emoji: '🐬', name: 'Delfín', zone: 'swim' },
+                        { emoji: '🐟', name: 'Pez', zone: 'swim' },
+                        { emoji: '🦋', name: 'Mariposa', zone: 'fly' }
+                    ].sort(() => 0.5 - Math.random());
+
+                    animals.forEach(a => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3 py-2 bg-slate-800 border-2 border-white/30 rounded-xl flex items-center gap-1.5 text-sm font-black shadow';
+                        el.innerHTML = `<span class="text-2xl">${a.emoji}</span><span>${a.name}</span>`;
+                        el.dataset.zone = a.zone;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let left = animals.length;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.zone === zone.dataset.target) {
+                            playSfx('drop');
+                            el.className = 'px-2 py-1 bg-black/80 rounded-xl text-xs font-black text-white flex items-center gap-1 m-1';
+                            zone.querySelector('.inner').appendChild(el);
+                            left--;
+                            if (left === 0) handleSuccess("¡Mis sensores confirman que todos están en su ambiente correcto!");
+                        } else {
+                            handleError(el, "¡Alerta! Ese animal no se desplaza en ese medio.");
+                        }
+                    });
+                }
+            },
+
+            // 5. VINCULAR DERIVADOS DE ANIMALES (FICHA 4)[cite: 4]
+            {
+                title: "Cadena de Derivados Animales",
+                instruction: "1º Toca el animal y 2º Toca el producto que nos da para unirlos con un rayo láser.",
+                demoAudio: "Conecta a cada animal con lo que nos proporciona[cite: 4]: la vaca da leche, la oveja lana, la abeja miel y el cerdo carne[cite: 4].",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex justify-between items-center w-full max-w-[220px]">
+                            <span class="text-3xl">🐄</span>
+                            <span class="text-cyber-green font-black">━━━</span>
+                            <span class="text-3xl">🥛</span>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    const pairs = [
+                        { lEmoji: '🐄', lName: 'Vaca', rEmoji: '🥛', rName: 'Leche' },
+                        { lEmoji: '🐑', lName: 'Oveja', rEmoji: '🧶', rName: 'Lana' },
+                        { lEmoji: '🐝', lName: 'Abeja', rEmoji: '🍯', rName: 'Miel' },
+                        { lEmoji: '🐖', lName: 'Cerdo', rEmoji: '🥩', rName: 'Carne' }
+                    ];
+                    const left = [...pairs].sort(() => 0.5 - Math.random());
+                    const right = [...pairs].sort(() => 0.5 - Math.random());
+
+                    stage.innerHTML = `
+                        <div class="w-full max-w-sm flex justify-between items-center px-4 relative z-30">
+                            <div class="flex flex-col gap-2.5">
+                                ${left.map(i => `<button class="btn-l w-20 py-2.5 bg-slate-800 border-2 border-cyber-cyan rounded-2xl flex flex-col items-center active:scale-95 shadow" data-prod="${i.rName}"><span class="text-3xl">${i.lEmoji}</span><span class="text-xs text-gray-200 font-bold">${i.lName}</span></button>`).join('')}
+                            </div>
+                            <div class="flex flex-col gap-2.5">
+                                ${right.map(i => `<button class="btn-r w-20 py-2.5 bg-black/80 border-2 border-cyber-yellow rounded-2xl flex flex-col items-center active:scale-95 shadow" data-prod="${i.rName}"><span class="text-3xl">${i.rEmoji}</span><span class="text-xs text-cyber-yellow font-black">${i.rName}</span></button>`).join('')}
+                            </div>
+                        </div>
+                    `;
+
+                    let aL = null, aR = null, matches = 0;
+                    const svg = $('#laser-canvas'); svg.innerHTML = '';
+
+                    const checkMatch = () => {
+                        if (aL && aR) {
+                            playSfx('laser');
+                            const ok = aL.dataset.prod === aR.dataset.prod;
+                            const r1 = aL.getBoundingClientRect(), r2 = aR.getBoundingClientRect(), sr = svg.getBoundingClientRect();
+                            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', r1.right - sr.left);
+                            line.setAttribute('y1', r1.top + r1.height / 2 - sr.top);
+                            line.setAttribute('x2', r2.left - sr.left);
+                            line.setAttribute('y2', r2.top + r2.height / 2 - sr.top);
+                            line.setAttribute('class', `laser-beam ${ok ? 'correct' : 'wrong'}`);
+                            svg.appendChild(line);
+
+                            if (ok) {
+                                playSfx('drop');
+                                aL.classList.add('opacity-40', 'pointer-events-none');
+                                aR.classList.add('opacity-40', 'pointer-events-none');
+                                matches++;
+                                if (matches === 4) scheduleTask(() => handleSuccess("¡Bip-bip! ¡Conexión perfecta con los derivados de los animales!"), 500);
+                            } else {
+                                handleError(null, "Ese animal no produce eso. Recuerda la leche de vaca y la lana de oveja.");
+                                const lN = aL, rN = aR;
+                                scheduleTask(() => {
+                                    if (svg.contains(line)) line.remove();
+                                    lN.classList.remove('border-cyber-green');
+                                    rN.classList.remove('border-cyber-green');
+                                }, 500);
+                            }
+                            aL = null; aR = null;
+                        }
+                    };
+
+                    $$('.btn-l').forEach(b => b.onclick = () => {
+                        if (b.classList.contains('pointer-events-none')) return;
+                        playSfx('select');
+                        $$('.btn-l').forEach(x => x.classList.remove('border-cyber-green'));
+                        b.classList.add('border-cyber-green'); aL = b; checkMatch();
+                    });
+                    $$('.btn-r').forEach(b => b.onclick = () => {
+                        if (b.classList.contains('pointer-events-none')) return;
+                        playSfx('select');
+                        $$('.btn-r').forEach(x => x.classList.remove('border-cyber-green'));
+                        b.classList.add('border-cyber-green'); aR = b; checkMatch();
+                    });
+                }
+            },
+
+            // 6. VINCULAR REPTILES CON SU NOMBRE (FICHAS 5 Y 6)[cite: 5, 6]
+            {
+                title: "Identificador de Reptiles",
+                instruction: "1º Toca el reptil y 2º Toca su nombre para enlazarlos.",
+                demoAudio: "Los reptiles tienen escamas o caparazón[cite: 5]. Enlaza al cocodrilo, serpiente, tortuga y camaleón con sus nombres de la ficha[cite: 5, 6].",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="text-3xl p-1 bg-white rounded-lg">🐊</span>
+                            <span class="text-cyber-green font-black">➔</span>
+                            <span class="text-xs bg-slate-800 px-2 py-1 rounded text-white font-bold">Cocodrilo</span>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    const reptiles = [
+                        { emoji: '🐊', name: 'Cocodrilo' },
+                        { emoji: '🐍', name: 'Serpiente' },
+                        { emoji: '🐢', name: 'Tortuga' },
+                        { emoji: '🦎', name: 'Camaleón' }
+                    ];
+                    const left = [...reptiles].sort(() => 0.5 - Math.random());
+                    const right = [...reptiles].sort(() => 0.5 - Math.random());
+
+                    stage.innerHTML = `
+                        <div class="w-full max-w-sm flex justify-between items-center px-4 relative z-30">
+                            <div class="flex flex-col gap-2.5">
+                                ${left.map(r => `<button class="btn-l w-18 py-2 bg-white border-2 border-cyber-cyan rounded-2xl text-3xl shadow flex items-center justify-center active:scale-95" data-name="${r.name}">${r.emoji}</button>`).join('')}
+                            </div>
+                            <div class="flex flex-col gap-2.5">
+                                ${right.map(r => `<button class="btn-r w-36 py-3.5 bg-black/80 border-2 border-cyber-green rounded-2xl text-xs sm:text-sm font-black text-white shadow active:scale-95" data-name="${r.name}">${r.name}</button>`).join('')}
+                            </div>
+                        </div>
+                    `;
+
+                    let aL = null, aR = null, count = 0;
+                    const svg = $('#laser-canvas'); svg.innerHTML = '';
+
+                    const check = () => {
+                        if (aL && aR) {
+                            playSfx('laser');
+                            const ok = aL.dataset.name === aR.dataset.name;
+                            const r1 = aL.getBoundingClientRect(), r2 = aR.getBoundingClientRect(), sr = svg.getBoundingClientRect();
+                            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', r1.right - sr.left);
+                            line.setAttribute('y1', r1.top + r1.height / 2 - sr.top);
+                            line.setAttribute('x2', r2.left - sr.left);
+                            line.setAttribute('y2', r2.top + r2.height / 2 - sr.top);
+                            line.setAttribute('class', `laser-beam ${ok ? 'correct' : 'wrong'}`);
+                            svg.appendChild(line);
+
+                            if (ok) {
+                                playSfx('drop');
+                                aL.classList.add('opacity-40', 'pointer-events-none');
+                                aR.classList.add('opacity-40', 'pointer-events-none');
+                                count++;
+                                if (count === 4) scheduleTask(() => handleSuccess("¡Bip! Los 4 reptiles han sido identificados."), 500);
+                            } else {
+                                handleError(null, "Ese nombre no coincide con el reptil.");
+                                const elL = aL, elR = aR;
+                                scheduleTask(() => {
+                                    if (svg.contains(line)) line.remove();
+                                    elL.classList.remove('border-cyber-yellow');
+                                    elR.classList.remove('border-cyber-yellow');
+                                }, 500);
+                            }
+                            aL = null; aR = null;
+                        }
+                    };
+
+                    $$('.btn-l').forEach(b => b.onclick = () => {
+                        if (b.classList.contains('pointer-events-none')) return;
+                        playSfx('select');
+                        $$('.btn-l').forEach(x => x.classList.remove('border-cyber-yellow'));
+                        b.classList.add('border-cyber-yellow'); aL = b; check();
+                    });
+                    $$('.btn-r').forEach(b => b.onclick = () => {
+                        if (b.classList.contains('pointer-events-none')) return;
+                        playSfx('select');
+                        $$('.btn-r').forEach(x => x.classList.remove('border-cyber-yellow'));
+                        b.classList.add('border-cyber-yellow'); aR = b; check();
+                    });
+                }
+            },
+
+            // 7. COMPLETAR RASGOS DE PECES (FICHA 7)[cite: 7]
+            {
+                title: "Laboratorio de Peces",
+                instruction: "Arrastra o toca cada rasgo para completar cómo viven y respiran los peces.",
+                demoAudio: "Los peces viven en el agua, respiran por branquias y usan aletas para nadar[cite: 7]. ¡Completa las casillas!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="text-sm font-bold text-white">Respiran por: <span class="text-cyber-cyan font-black border-b border-cyber-cyan">Branquias</span></div>
+                    `;
+                },
+                setup: (stage) => {
+                    stage.innerHTML = `
+                        <div class="w-full max-w-sm bg-black/60 p-4 rounded-2xl border border-cyber-cyan/40 flex flex-col gap-3 shadow mb-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-black text-gray-200">1. Viven en el:</span>
+                                <div class="drop-target w-32 h-10 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-sm font-black text-cyber-cyan" data-target="Agua"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-black text-gray-200">2. Respiran por:</span>
+                                <div class="drop-target w-32 h-10 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-sm font-black text-cyber-cyan" data-target="Branquias"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-black text-gray-200">3. Usan para nadar:</span>
+                                <div class="drop-target w-32 h-10 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-sm font-black text-cyber-cyan" data-target="Aletas"></div>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex gap-2 max-w-md"></div>
+                    `;
+
+                    const opts = ['Agua', 'Branquias', 'Aletas', 'Pulmones'].sort(() => 0.5 - Math.random());
+                    opts.forEach(o => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3.5 py-2.5 bg-blue-900 border-2 border-cyber-cyan rounded-xl text-sm font-black text-white shadow';
+                        el.innerText = o; el.dataset.val = o;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let hits = 0;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.val === zone.dataset.target) {
+                            playSfx('drop');
+                            el.style.display = 'none';
+                            zone.innerText = el.dataset.val;
+                            zone.classList.remove('border-dashed');
+                            zone.classList.add('border-cyber-green', 'bg-cyber-green/20', 'text-cyber-green');
+                            hits++;
+                            if (hits === 3) handleSuccess("¡Bip! Los peces respiran por branquias y nadan con aletas.");
+                        } else {
+                            handleError(el, "Esa no es la característica de los peces.");
+                        }
+                    });
+                }
+            },
+
+            // 8. ESTRUCTURA DE LAS AVES (FICHA 8)[cite: 8]
+            {
+                title: "Estructura de las Aves",
+                instruction: "Arrastra cada parte de las aves a su casilla correspondiente.",
+                demoAudio: "Las aves tienen cuerpo con plumas, pico en lugar de dientes, dos alas para volar y nacen de huevos[cite: 8]. ¡Ubícalas!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="text-sm font-bold text-white">Tienen pico en vez de... ➔ <span class="text-cyber-yellow font-black">Dientes</span></div>
+                    `;
+                },
+                setup: (stage) => {
+                    stage.innerHTML = `
+                        <div class="w-full max-w-sm bg-black/60 p-4 rounded-2xl border border-cyber-yellow/40 flex flex-col gap-3 shadow mb-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-black text-gray-200">1. Cubiertas de:</span>
+                                <div class="drop-target w-32 h-10 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-sm font-black text-cyber-cyan" data-target="Plumas"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-black text-gray-200">2. En vez de dientes:</span>
+                                <div class="drop-target w-32 h-10 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-sm font-black text-cyber-cyan" data-target="Pico"></div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-black text-gray-200">3. Dos alas para:</span>
+                                <div class="drop-target w-32 h-10 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-sm font-black text-cyber-cyan" data-target="Volar"></div>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex gap-2 max-w-md"></div>
+                    `;
+
+                    const opts = ['Plumas', 'Pico', 'Volar', 'Pelos'].sort(() => 0.5 - Math.random());
+                    opts.forEach(o => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3.5 py-2.5 bg-blue-900 border-2 border-cyber-cyan rounded-xl text-sm font-black text-white shadow';
+                        el.innerText = o; el.dataset.val = o;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let hits = 0;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.val === zone.dataset.target) {
+                            playSfx('drop');
+                            el.style.display = 'none';
+                            zone.innerText = el.dataset.val;
+                            zone.classList.remove('border-dashed');
+                            zone.classList.add('border-cyber-green', 'bg-cyber-green/20', 'text-cyber-green');
+                            hits++;
+                            if (hits === 3) handleSuccess("¡Bip-bip! ¡Anatomía de las aves configurada con éxito!");
+                        } else {
+                            handleError(el, "Esa no es la parte correspondiente.");
+                        }
+                    });
+                }
+            },
+
+            // 9. OVÍPAROS VS VIVÍPAROS (FICHA 7)[cite: 7]
+            {
+                title: "¿Cómo Nacen los Animales?",
+                instruction: "Arrastra cada animal al NIDO (Ovíparo: nace de huevo) o al REGAZO (Vivíparo: vientre).",
+                demoAudio: "Ovíparo significa que nace de huevo (gallina, tortuga, rana)[cite: 7]. Vivíparo nace del vientre materno (vaca, gato, delfín)[cite: 7]. ¡Clasifícalos!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex gap-3 text-sm font-bold">
+                            <span class="p-2 bg-yellow-950/40 border border-cyber-yellow rounded">🥚 Huevo: Tortuga</span>
+                            <span class="p-2 bg-pink-950/40 border border-cyber-pink rounded">🤱 Vientre: Vaca</span>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    stage.innerHTML = `
+                        <div class="w-full flex gap-3 max-w-xl mb-3">
+                            <div class="drop-target flex-1 flex flex-col items-center p-3 rounded-2xl border-2 border-cyber-yellow bg-yellow-950/40 min-h-[150px]" data-target="ovi">
+                                <span class="text-sm font-black bg-black/80 px-3 py-1 rounded-full text-cyber-yellow border border-cyber-yellow mb-2 shadow-neon-yellow">🥚 OVÍPAROS (Huevos)</span>
+                                <div class="inner flex flex-wrap gap-1.5 justify-center w-full"></div>
+                            </div>
+                            <div class="drop-target flex-1 flex flex-col items-center p-3 rounded-2xl border-2 border-cyber-pink bg-pink-950/40 min-h-[150px]" data-target="vivi">
+                                <span class="text-sm font-black bg-black/80 px-3 py-1 rounded-full text-cyber-pink border border-cyber-pink mb-2 shadow-neon-pink">🤱 VIVÍPAROS (Vientre)</span>
+                                <div class="inner flex flex-wrap gap-1.5 justify-center w-full"></div>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex flex-wrap justify-center gap-2 max-w-md bg-black/60 p-2.5 rounded-2xl border border-white/20"></div>
+                    `;
+
+                    const animals = [
+                        { emoji: '🐔', name: 'Gallina', type: 'ovi' },
+                        { emoji: '🐢', name: 'Tortuga', type: 'ovi' },
+                        { emoji: '🐸', name: 'Rana', type: 'ovi' },
+                        { emoji: '🐮', name: 'Vaca', type: 'vivi' },
+                        { emoji: '🐱', name: 'Gato', type: 'vivi' },
+                        { emoji: '🐬', name: 'Delfín', type: 'vivi' }
+                    ].sort(() => 0.5 - Math.random());
+
+                    animals.forEach(a => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3.5 py-2 bg-slate-800 border border-white/30 rounded-xl flex items-center gap-1.5 text-sm font-black shadow';
+                        el.innerHTML = `<span class="text-2xl">${a.emoji}</span><span>${a.name}</span>`;
+                        el.dataset.type = a.type;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let count = animals.length;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.type === zone.dataset.target) {
+                            playSfx('drop');
+                            el.className = 'px-2 py-1 bg-black/80 rounded-xl text-xs font-black border border-white/30 flex items-center gap-1 m-1';
+                            zone.querySelector('.inner').appendChild(el);
+                            count--;
+                            if (count === 0) handleSuccess("¡Excelente! Sabes muy bien cómo nace cada especie animal.");
+                        } else {
+                            handleError(el, "¡Bip! Ese animal no nace de esa manera.");
+                        }
+                    });
+                }
+            },
+
+            // 10. CLASIFICA POR HÁBITAT (FICHA 9)
+            {
+                title: "Hábitats: Terrestre, Acuático y Aéreo",
+                instruction: "Arrastra cada animal a su hábitat natural: Terrestre, Acuático o Aéreo.",
+                demoAudio: "Jirafa y elefante caminan en tierra[cite: 9]. Delfín y pez nadan en agua[cite: 9]. Paloma y águila vuelan en el aire[cite: 9]. ¡Colócalos!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex gap-2 text-xs font-bold">
+                            <span class="p-1 bg-amber-900/60 rounded">Tierra: 🦒</span>
+                            <span class="p-1 bg-blue-900/60 rounded">Agua: 🐬</span>
+                            <span class="p-1 bg-sky-900/60 rounded">Aire: 🕊️</span>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    stage.innerHTML = `
+                        <div class="w-full grid grid-cols-3 gap-2 max-w-lg mb-3">
+                            <div class="drop-target p-2.5 rounded-2xl border-2 border-amber-500 bg-amber-950/40 flex flex-col items-center min-h-[140px]" data-target="T">
+                                <span class="text-xs font-black text-amber-300 bg-black/80 px-2 py-0.5 rounded-full mb-1">🌳 TERRESTRE</span>
+                                <div class="inner flex flex-wrap gap-1 justify-center"></div>
+                            </div>
+                            <div class="drop-target p-2.5 rounded-2xl border-2 border-cyber-cyan bg-cyan-950/40 flex flex-col items-center min-h-[140px]" data-target="A">
+                                <span class="text-xs font-black text-cyber-cyan bg-black/80 px-2 py-0.5 rounded-full mb-1">🌊 ACUÁTICO</span>
+                                <div class="inner flex flex-wrap gap-1 justify-center"></div>
+                            </div>
+                            <div class="drop-target p-2.5 rounded-2xl border-2 border-cyber-yellow bg-yellow-950/40 flex flex-col items-center min-h-[140px]" data-target="V">
+                                <span class="text-xs font-black text-cyber-yellow bg-black/80 px-2 py-0.5 rounded-full mb-1">☁️ AÉREO</span>
+                                <div class="inner flex flex-wrap gap-1 justify-center"></div>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex flex-wrap justify-center gap-2 max-w-md bg-black/60 p-2.5 rounded-2xl border border-white/20"></div>
+                    `;
+
+                    const animals = [
+                        { emoji: '🦒', name: 'Jirafa', hab: 'T' },
+                        { emoji: '🐬', name: 'Delfín', hab: 'A' },
+                        { emoji: '🕊️', name: 'Paloma', hab: 'V' },
+                        { emoji: '🐘', name: 'Elefante', hab: 'T' },
+                        { emoji: '🐠', name: 'Pez', hab: 'A' },
+                        { emoji: '🦅', name: 'Águila', hab: 'V' }
+                    ].sort(() => 0.5 - Math.random());
+
+                    animals.forEach(a => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3 py-1.5 bg-slate-800 border border-white/30 rounded-xl flex items-center gap-1.5 text-xs font-black shadow';
+                        el.innerHTML = `<span class="text-xl">${a.emoji}</span><span>${a.name}</span>`;
+                        el.dataset.hab = a.hab;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let remaining = animals.length;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.hab === zone.dataset.target) {
+                            playSfx('drop');
+                            el.className = 'px-1.5 py-0.5 bg-black/80 rounded text-[11px] font-black text-white flex items-center gap-1 m-0.5';
+                            zone.querySelector('.inner').appendChild(el);
+                            remaining--;
+                            if (remaining === 0) handleSuccess("¡Bip-bip! Todos los animales están a salvo en su hábitat.");
+                        } else {
+                            handleError(el, "Ese no es su hábitat natural.");
+                        }
+                    });
+                }
+            },
+
+            // 11. PARTES DE LA PLANTA: DIAGRAMA INTERACTIVO (FICHAS 10, 11, 13 Y 14)
+            {
+                title: "Las Partes de la Planta",
+                instruction: "Arrastra cada etiqueta al punto correcto de la planta.",
+                demoAudio: "¡Mira la planta de tu cuaderno! La raíz va abajo en la tierra, el tallo sube firme, las hojas verdes a los lados, la flor arriba y el fruto redondo[cite: 10, 11, 13, 14]. ¡Ubícalos!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="text-4xl">🌻</span>
+                            <span class="text-xs text-cyber-yellow font-bold">Arrastra: Flor, Hoja, Tallo, Raíz, Fruto[cite: 10, 11, 13, 14]</span>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    stage.innerHTML = `
+                        <div class="w-full max-w-sm bg-black/60 p-3.5 rounded-2xl border-2 border-cyber-green/40 flex flex-col items-center mb-3">
+                            <div class="flex items-center justify-between w-full mb-1">
+                                <span class="text-3xl">🌸 Flor:</span>
+                                <div class="drop-target w-36 h-9 bg-slate-900 border-2 border-dashed border-cyber-yellow rounded-xl flex items-center justify-center text-xs font-black text-cyber-yellow" data-target="FLOR">¿Parte?</div>
+                            </div>
+                            <div class="flex items-center justify-between w-full mb-1">
+                                <span class="text-3xl">🍃 Hoja:</span>
+                                <div class="drop-target w-36 h-9 bg-slate-900 border-2 border-dashed border-cyber-yellow rounded-xl flex items-center justify-center text-xs font-black text-cyber-yellow" data-target="HOJAS">¿Parte?</div>
+                            </div>
+                            <div class="flex items-center justify-between w-full mb-1">
+                                <span class="text-3xl">🍎 Fruto:</span>
+                                <div class="drop-target w-36 h-9 bg-slate-900 border-2 border-dashed border-cyber-yellow rounded-xl flex items-center justify-center text-xs font-black text-cyber-yellow" data-target="FRUTO">¿Parte?</div>
+                            </div>
+                            <div class="flex items-center justify-between w-full mb-1">
+                                <span class="text-3xl">🎋 Tallo:</span>
+                                <div class="drop-target w-36 h-9 bg-slate-900 border-2 border-dashed border-cyber-yellow rounded-xl flex items-center justify-center text-xs font-black text-cyber-yellow" data-target="TALLO">¿Parte?</div>
+                            </div>
+                            <div class="flex items-center justify-between w-full">
+                                <span class="text-3xl">🥕 Raíz:</span>
+                                <div class="drop-target w-36 h-9 bg-slate-900 border-2 border-dashed border-cyber-yellow rounded-xl flex items-center justify-center text-xs font-black text-cyber-yellow" data-target="RAÍZ">¿Parte?</div>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex flex-wrap justify-center gap-2 max-w-md"></div>
+                    `;
+
+                    const parts = ['FLOR', 'HOJAS', 'FRUTO', 'TALLO', 'RAÍZ'].sort(() => 0.5 - Math.random());
+                    parts.forEach(p => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3.5 py-2 bg-gradient-to-r from-emerald-700 to-green-900 border border-cyber-green rounded-xl text-xs font-black text-white shadow';
+                        el.innerText = p; el.dataset.val = p;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let hits = 0;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.val === zone.dataset.target) {
+                            playSfx('drop');
+                            el.style.display = 'none';
+                            zone.innerText = el.dataset.val;
+                            zone.classList.remove('border-dashed');
+                            zone.classList.add('border-cyber-green', 'bg-cyber-green/20', 'text-cyber-green');
+                            hits++;
+                            if (hits === 5) handleSuccess("¡Bip-bip! ¡Excelente botánico! Reconociste todas las partes de la planta.");
+                        } else {
+                            handleError(el, "Esa no es esa parte de la planta.");
+                        }
+                    });
+                }
+            },
+
+            // 12. COMPLETAR LETRAS DE LAS PARTES (FICHA 11)[cite: 11]
+            {
+                title: "Letras de la Planta",
+                instruction: "Arrastra la letra o dígrafo faltante para armar los nombres de tu ficha escolar.",
+                demoAudio: "En tu ficha recortaste y pegaste: F-L-O-R, H-O-J-A, T-A-LL-O, R-A-Í-Z[cite: 11]. ¡Coloca la ficha que falta en cada palabra!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="text-base font-bold text-white">F L <span class="text-cyber-yellow border-b-2 border-cyber-yellow">O</span> R</div>
+                    `;
+                },
+                setup: (stage) => {
+                    const words = [
+                        { pre: 'F L', miss: 'O', post: 'R' },
+                        { pre: 'H', miss: 'O', post: 'J A' },
+                        { pre: 'T A', miss: 'LL', post: 'O' },
+                        { pre: 'R A', miss: 'Í', post: 'Z' }
+                    ];
+
+                    stage.innerHTML = `
+                        <div class="w-full max-w-sm bg-black/60 p-4 rounded-2xl border border-cyber-cyan/40 flex flex-col gap-3 shadow mb-4">
+                            ${words.map(w => `
+                                <div class="flex items-center justify-between text-base font-black tracking-widest text-white">
+                                    <span>${w.pre}</span>
+                                    <div class="drop-target w-14 h-10 bg-slate-900 border-2 border-dashed border-cyber-yellow rounded-xl flex items-center justify-center text-lg font-black text-cyber-yellow" data-target="${w.miss}">?</div>
+                                    <span>${w.post}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div id="tray" class="flex gap-3"></div>
+                    `;
+
+                    const letters = ['O', 'O', 'LL', 'Í'].sort(() => 0.5 - Math.random());
+                    letters.forEach(l => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-4.5 py-2.5 bg-gradient-to-r from-blue-700 to-indigo-900 border-2 border-cyber-cyan rounded-xl text-xl font-black text-white shadow-neon-cyan';
+                        el.innerText = l; el.dataset.val = l;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let hits = 0;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.val === zone.dataset.target) {
+                            playSfx('drop');
+                            el.style.display = 'none';
+                            zone.innerText = el.dataset.val;
+                            zone.classList.remove('border-dashed');
+                            zone.classList.add('border-cyber-green', 'bg-cyber-green/20', 'text-cyber-green');
+                            hits++;
+                            if (hits === 4) handleSuccess("¡Palabras completadas! La ortografía de la planta está impecable.");
+                        } else {
+                            handleError(el, "Esa letra no completa la palabra.");
+                        }
+                    });
+                }
+            },
+
+            // 13. SER VIVO O NO SER VIVO (FICHA 12)
+            {
+                title: "¿Es un Ser Vivo?",
+                instruction: "Arrastra cada elemento a SÍ (Ser vivo) o a NO (Objeto inerte).",
+                demoAudio: "Los seres vivos nacen, crecen, respiran y se alimentan[cite: 12]. El niño, perro y árbol SÍ están vivos[cite: 12]. El celular, mesa y piedra NO[cite: 12]. ¡Sepáralos!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex gap-2 text-xs font-bold">
+                            <span class="p-1 bg-emerald-900/60 rounded">SÍ Vivo: 🧒 🌳</span>
+                            <span class="p-1 bg-rose-900/60 rounded">NO Vivo: 📱 🪑</span>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    stage.innerHTML = `
+                        <div class="w-full flex gap-3 max-w-xl mb-3">
+                            <div class="drop-target flex-1 flex flex-col items-center p-3 rounded-2xl border-2 border-cyber-green bg-emerald-950/40 min-h-[150px]" data-target="si">
+                                <span class="text-sm font-black bg-black/80 px-3 py-1 rounded-full text-cyber-green border border-cyber-green mb-2 shadow-neon-green">✅ SÍ ES SER VIVO</span>
+                                <div class="inner flex flex-wrap gap-1.5 justify-center w-full"></div>
+                            </div>
+                            <div class="drop-target flex-1 flex flex-col items-center p-3 rounded-2xl border-2 border-cyber-pink bg-rose-950/40 min-h-[150px]" data-target="no">
+                                <span class="text-sm font-black bg-black/80 px-3 py-1 rounded-full text-cyber-pink border border-cyber-pink mb-2 shadow-neon-pink">❌ NO ES SER VIVO</span>
+                                <div class="inner flex flex-wrap gap-1.5 justify-center w-full"></div>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex flex-wrap justify-center gap-2 max-w-md bg-black/60 p-2 rounded-2xl border border-white/20"></div>
+                    `;
+
+                    const items = [
+                        { emoji: '🧒', name: 'Niño', live: 'si' },
+                        { emoji: '📱', name: 'Celular', live: 'no' },
+                        { emoji: '🐕', name: 'Perro', live: 'si' },
+                        { emoji: '🪑', name: 'Mesa', live: 'no' },
+                        { emoji: '🌳', name: 'Árbol', live: 'si' },
+                        { emoji: '🪨', name: 'Piedra', live: 'no' }
+                    ].sort(() => 0.5 - Math.random());
+
+                    items.forEach(i => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3.5 py-2 bg-slate-800 border border-white/30 rounded-xl flex items-center gap-1.5 text-sm font-black shadow';
+                        el.innerHTML = `<span class="text-2xl">${i.emoji}</span><span>${i.name}</span>`;
+                        el.dataset.live = i.live;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let count = items.length;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.live === zone.dataset.target) {
+                            playSfx('drop');
+                            el.className = 'px-2 py-1 bg-black/80 rounded-xl text-xs font-black border border-white/30 flex items-center gap-1 m-1';
+                            zone.querySelector('.inner').appendChild(el);
+                            count--;
+                            if (count === 0) handleSuccess("¡Bip-bip! ¡Excelente! Los seres vivos tienen vida; los objetos inertes no.");
+                        } else {
+                            handleError(el, "¿Respira y crece o es un objeto fabricado sin vida?");
+                        }
+                    });
+                }
+            },
+
+            // 14. ORDENAR EL CICLO DE VIDA DE LA PLANTA (FICHA 12)[cite: 12]
+            {
+                title: "Ciclo de Vida de la Planta",
+                instruction: "Arrastra cada etapa en su orden de crecimiento: 1º Nace, 2º Crece, 3º Se reproduce, 4º Muere.",
+                demoAudio: "El ciclo de vida en tu ficha es: 1. Nace de la semilla, 2. Crece con hojas, 3. Se reproduce con flores y frutos, 4. Muere[cite: 12]. ¡Ordénalo!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex items-center gap-1 text-xs font-bold">
+                            <span class="p-1 bg-blue-900 rounded">1. Nace</span> ➔ 
+                            <span class="p-1 bg-blue-900 rounded">2. Crece</span> ➔ 
+                            <span class="p-1 bg-blue-900 rounded">3. Reproduce</span> ➔ 
+                            <span class="p-1 bg-blue-900 rounded">4. Muere</span>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    const cycle = [
+                        { step: 1, label: '1. Nace', desc: 'Semilla brotando 🌱' },
+                        { step: 2, label: '2. Crece', desc: 'Hojas y tallo 🌿' },
+                        { step: 3, label: '3. Se reproduce', desc: 'Flores y frutos 🌸🍅' },
+                        { step: 4, label: '4. Muere', desc: 'Planta marchita 🍂' }
+                    ];
+
+                    stage.innerHTML = `
+                        <div class="w-full max-w-sm bg-black/60 p-3 rounded-2xl border-2 border-cyber-cyan/40 flex flex-col gap-2 shadow mb-3">
+                            ${cycle.map(c => `
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-black text-gray-200">${c.label}:</span>
+                                    <div class="drop-target w-48 h-10 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-xs font-black text-cyber-cyan" data-target="${c.step}">¿Etapa?</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div id="tray" class="flex flex-wrap justify-center gap-2 max-w-md"></div>
+                    `;
+
+                    const shuffled = [...cycle].sort(() => 0.5 - Math.random());
+                    shuffled.forEach(c => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3 py-2 bg-slate-800 border border-cyber-yellow rounded-xl text-xs font-black text-white shadow';
+                        el.innerText = c.desc; el.dataset.step = c.step;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let count = 4;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.step === zone.dataset.target) {
+                            playSfx('drop');
+                            el.style.display = 'none';
+                            zone.innerText = el.innerText;
+                            zone.classList.remove('border-dashed');
+                            zone.classList.add('border-cyber-green', 'bg-cyber-green/20', 'text-cyber-green');
+                            count--;
+                            if (count === 0) handleSuccess("¡Bip! Ciclo biológico ordenado perfectamente.");
+                        } else {
+                            handleError(el, "Esa no es la etapa correcta en la secuencia.");
+                        }
+                    });
+                }
+            },
+
+            // 15. COMPLETAR LA GRAN ORACIÓN (FICHA 12)[cite: 12]
+            {
+                title: "Constructor de la Oración",
+                instruction: "Toca o arrastra las palabras en orden para armar: 'Las plantas son seres vivos'.",
+                demoAudio: "En la ficha 12 recortaron los bloques[cite: 12]. Toca palabra por palabra en orden para armar: 'Las plantas son seres vivos'[cite: 12].",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="text-base font-black text-cyber-green">
+                            Las ➔ plantas ➔ son ➔ seres ➔ vivos.
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    const words = ['Las', 'plantas', 'son', 'seres', 'vivos.'];
+                    let nextIndex = 0;
+
+                    stage.innerHTML = `
+                        <div class="w-full max-w-md bg-black/60 p-4 rounded-2xl border-2 border-cyber-yellow/50 flex flex-col items-center mb-4">
+                            <span class="text-xs text-cyber-yellow font-black mb-2 uppercase">Tu oración en construcción:</span>
+                            <div id="sentence-box" class="min-h-[55px] w-full bg-slate-900 rounded-xl border border-white/20 p-2 flex items-center justify-center gap-1.5 text-base sm:text-lg font-black text-cyber-green">
+                                <span class="text-gray-400 font-normal text-xs">Toca las palabras abajo en orden...</span>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex flex-wrap justify-center gap-2 max-w-md"></div>
+                    `;
+
+                    const shuffled = [...words].sort(() => 0.5 - Math.random());
+                    shuffled.forEach(w => {
+                        const btn = document.createElement('button');
+                        btn.className = 'interactive-token px-4 py-2.5 bg-blue-900 border-2 border-cyber-cyan rounded-xl text-base font-black text-white shadow-neon-cyan active:scale-95';
+                        btn.innerText = w;
+                        btn.onclick = () => {
+                            if (btn.classList.contains('pointer-events-none')) return;
+                            if (w === words[nextIndex]) {
+                                playSfx('drop');
+                                if (nextIndex === 0) $('#sentence-box').innerHTML = '';
+                                const tag = document.createElement('span');
+                                tag.className = 'px-2 py-1 bg-cyber-green/20 border border-cyber-green rounded-lg text-cyber-green';
+                                tag.innerText = w;
+                                $('#sentence-box').appendChild(tag);
+                                gsap.from(tag, { scale: 0.5, duration: 0.2 });
+                                btn.classList.add('opacity-30', 'pointer-events-none');
+                                nextIndex++;
+                                if (nextIndex === words.length) {
+                                    handleSuccess("¡Bip-bip! 'Las plantas son seres vivos'. ¡Gran trabajo sintáctico!");
+                                }
+                            } else {
+                                handleError(btn, `La palabra siguiente no es '${w}'. Sigue el orden de la frase.`);
+                            }
+                        };
+                        $('#tray').appendChild(btn);
+                    });
+                }
+            },
+
+            // 16. LABORATORIO DE FOTOSÍNTESIS (FICHAS 15 Y 16)
+            {
+                title: "Fábrica de Fotosíntesis",
+                instruction: "Arrastra los 3 elementos que necesita la planta (Luz solar, Agua/Nutrientes, Dióxido de carbono) a sus flechas.",
+                demoAudio: "¡Misión 16 de fotosíntesis! La planta toma Luz del sol, Agua por la raíz y Dióxido de carbono por las hojas[cite: 15, 16]. ¡Coloca los 3 elementos correctos!",
+                demoSetup: (box) => {
+                    box.innerHTML = `
+                        <div class="flex gap-2 text-xs font-bold">
+                            <span class="p-1 bg-yellow-900/60 rounded">☀️ Sol</span>
+                            <span class="p-1 bg-blue-900/60 rounded">💧 Agua</span>
+                            <span class="p-1 bg-emerald-900/60 rounded">💨 Dióxido</span>
+                        </div>
+                    `;
+                },
+                setup: (stage) => {
+                    stage.innerHTML = `
+                        <div class="w-full max-w-sm bg-black/60 p-3.5 rounded-2xl border-2 border-cyber-green/50 flex flex-col gap-2.5 shadow mb-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-2xl">☀️ Sol:</span>
+                                <div class="drop-target w-48 h-9 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-xs font-black text-cyber-cyan" data-target="Luz solar">¿Qué da?</div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-2xl">🪴 Raíz:</span>
+                                <div class="drop-target w-48 h-9 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-xs font-black text-cyber-cyan" data-target="Agua y nutrientes">¿Qué absorbe?</div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-2xl">🍃 Hoja:</span>
+                                <div class="drop-target w-48 h-9 bg-slate-900 border-2 border-dashed border-cyber-cyan rounded-xl flex items-center justify-center text-xs font-black text-cyber-cyan" data-target="Dióxido de carbono">¿Qué gas entra?</div>
+                            </div>
+                        </div>
+                        <div id="tray" class="flex flex-wrap justify-center gap-2 max-w-md"></div>
+                    `;
+
+                    const ingredients = [
+                        { name: 'Luz solar', emoji: '☀️' },
+                        { name: 'Agua y nutrientes', emoji: '💧' },
+                        { name: 'Dióxido de carbono', emoji: '💨' },
+                        { name: 'Caramelos', emoji: '🍬' }
+                    ].sort(() => 0.5 - Math.random());
+
+                    ingredients.forEach(i => {
+                        const el = document.createElement('div');
+                        el.className = 'interactive-token px-3.5 py-2 bg-blue-900 border border-cyber-cyan rounded-xl text-xs font-black text-white shadow';
+                        el.innerHTML = `${i.emoji} ${i.name}`;
+                        el.dataset.val = i.name;
+                        $('#tray').appendChild(el);
+                    });
+
+                    let hits = 0;
+                    currentCtrl = new UniversalDropController((el, zone) => {
+                        if (el.dataset.val === zone.dataset.target) {
+                            playSfx('drop');
+                            el.style.display = 'none';
+                            zone.innerText = el.innerText;
+                            zone.classList.remove('border-dashed');
+                            zone.classList.add('border-cyber-green', 'bg-cyber-green/20', 'text-cyber-green');
+                            hits++;
+                            if (hits === 3) handleSuccess("¡Bip-bip-hurra! ¡La fotosíntesis se activó y la planta liberó oxígeno al mundo!");
+                        } else {
+                            handleError(el, "Ese elemento no corresponde a esa flecha de la fotosíntesis.");
+                        }
+                    });
+                }
+            }
+        ];
+
+        // --- NAVEGACIÓN Y CARGA DE NIVELES ---
+        function clearStage() {
+            $('#game-stage').innerHTML = '';
+            $('#laser-canvas').innerHTML = '';
+            if (currentCtrl) { currentCtrl.destroy(); currentCtrl = null; }
+            $('#tap-helper-banner')?.classList.add('opacity-0');
+        }
+
+        function showLevelGuide(index) {
+            cancelTasks();
+            stopVoice();
+            const lvl = gameLevels[index];
+            $('#guide-level-title').innerText = `MISIÓN ${index + 1}: ${lvl.title}`;
+            $('#guide-explanation-text').innerText = lvl.demoAudio;
+            const box = $('#guide-animation-box');
+            box.innerHTML = '';
+            lvl.demoSetup(box);
+
+            $('#modal-guide').classList.remove('hidden');
+            speakInstruction(lvl.demoAudio);
+
+            $('#btn-guide-replay-voice').onclick = () => speakInstruction(lvl.demoAudio);
+            $('#btn-start-level-now').onclick = () => {
+                stopVoice();
+                $('#modal-guide').classList.add('hidden');
+                loadLevelDirect(index);
+            };
+        }
+
+        function loadLevelDirect(index) {
+            cancelTasks();
+            stopVoice();
+            gameState.roundDone = false;
+            $('#next-mission').hidden = true;
+            gameState.levelIndex = index;
+            $('#mission-title').innerText = `${index + 1}. ${gameLevels[index].title}`;
+            $('#mission-step-count').innerText = `MISIÓN ${index + 1} DE ${gameState.totalLevels}`;
+            $('#modal-menu').classList.add('hidden');
+            clearStage();
+            updateHUD();
+
+            const lvl = gameLevels[gameState.levelIndex];
+            setRobotSpeech(lvl.instruction);
+            speakInstruction(lvl.instruction);
+            lvl.setup($('#game-stage'));
+        }
+
+        function showLevelMenu() {
+            stopVoice();
+            const grid = $('#levels-grid');
+            grid.innerHTML = '';
+            for (let i = 0; i < gameState.totalLevels; i++) {
+                const done = gameState.completedLevels.has(i);
+                const btn = document.createElement('button');
+                btn.className = `p-2.5 rounded-2xl flex flex-col items-center justify-center font-bold text-xs border-2 transition-all ${
+                    done ? 'bg-cyber-green/20 border-cyber-green text-cyber-green' : 'bg-slate-800 border-white/20 text-white hover:border-cyber-cyan'
+                }`;
+                btn.innerHTML = `<span class="text-base">${done ? '✓' : (i + 1)}</span><span class="text-[11px] text-center leading-tight">${gameLevels[i].title}</span>`;
+                btn.onclick = () => {
+                    $('#modal-menu').classList.add('hidden');
+                    showLevelGuide(i);
+                };
+                grid.appendChild(btn);
+            }
+            $('#modal-menu').classList.remove('hidden');
+        }
+
+        function startGame() {
+            try { getAudioContext(); } catch {}
+            playSfx('select');
+            cancelTasks();
+            const name = $('#input-player-name').value.trim();
+            if (name) gameState.playerName = name;
+            gameState.levelIndex = 0;
+            gameState.score = 0;
+            gameState.errorsTotal = 0;
+            gameState.completedLevels.clear();
+            $('#modal-start').classList.add('hidden');
+            $('#modal-report').classList.add('hidden');
+            showLevelGuide(0);
+        }
+
+        function finishGame() {
+            cancelTasks();
+            playSfx('success');
+            triggerConfetti();
+            setRobotMood('happy');
+            $('#modal-report').classList.remove('hidden');
+            $('#modal-menu').classList.add('hidden');
+            $('#modal-guide').classList.add('hidden');
+            $('#rep-student-name').innerText = `Científico/a: ${gameState.playerName}`;
+            $('#rep-total-score').innerText = gameState.score;
+            $('#rep-correct-count').innerText = `${gameState.completedLevels.size} / ${gameState.totalLevels}`;
+            $('#rep-error-count').innerText = gameState.errorsTotal;
+            speakInstruction("¡Bip-bip-hurra! Has superado todas las misiones de animales y plantas con honores.");
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            $('#btn-begin-game').addEventListener('click', startGame);
+            $('#btn-show-menu').addEventListener('click', showLevelMenu);
+            $('#btn-close-menu').addEventListener('click', () => $('#modal-menu').classList.add('hidden'));
+            $('#btn-finish-early').addEventListener('click', finishGame);
+            $('#btn-play-again').addEventListener('click', () => {
+                $('#modal-report').classList.add('hidden');
+                $('#modal-start').classList.remove('hidden');
+            });
+            $('#btn-speak-instruction').addEventListener('click', () => speakInstruction($('#bot-speech').innerText));
+            $('#btn-show-demo').addEventListener('click', () => showLevelGuide(gameState.levelIndex));
+            $('#btn-download-pdf').addEventListener('click', () => { stopVoice(); window.print(); });
+            
+            $('#btn-sound-toggle').addEventListener('click', function () {
+                gameState.soundEnabled = !gameState.soundEnabled;
+                this.innerText = gameState.soundEnabled ? '🔊' : '🔇';
+                if (!gameState.soundEnabled) stopVoice();
+                else playSfx('select');
+            });
+
+            $('#next-mission').addEventListener('click', () => {
+                if (gameState.completedLevels.size === gameState.totalLevels) {
+                    finishGame();
+                } else {
+                    let next = gameState.levelIndex + 1;
+                    if (next >= gameState.totalLevels) next = 0;
+                    showLevelGuide(next);
+                }
+            });
+
+            $('#input-player-name').addEventListener('keydown', e => { if (e.key === 'Enter') startGame(); });
+        });
+    </script>
+</body>
+</html>
