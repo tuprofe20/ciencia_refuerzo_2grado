@@ -171,7 +171,7 @@
             </div>
         </header>
 
-        <!-- ROBOT COMPAÑERO BOTY (DISEÑO IDÉNTICO AL AVATAR SOLICITADO) -->
+        <!-- ROBOT ACOMPAÑANTE BOTY -->
         <section class="w-full flex items-center gap-3 sm:gap-4 p-2.5 sm:p-3.5 rounded-2xl sci-card mb-2 bg-gradient-to-r from-blue-950/90 via-slate-900/85 to-indigo-950/90 border-cyber-cyan/40 flex-shrink-0">
             <div id="bot-container" class="relative w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0 robot-floating flex items-center justify-center">
                 <!-- SVG Vectorial Robot de Portada (Cuerpo lavanda, antenas rosa fucsia, cápsula amarilla, visor oscuro) -->
@@ -200,18 +200,16 @@
                         </linearGradient>
                     </defs>
 
-                    <!-- Antenas / Auriculares Fucsia Laterales -->
-                    <!-- Izquierda -->
+                    <!-- Antenas Fucsia Laterales -->
                     <rect x="14" y="52" width="10" height="30" rx="5" fill="url(#pinkEarGrad)"/>
                     <line x1="19" y1="52" x2="19" y2="24" stroke="#ff2a85" stroke-width="4.5" stroke-linecap="round"/>
                     <circle cx="19" cy="22" r="7.5" fill="#ff2a85" class="antenna-glow"/>
                     
-                    <!-- Derecha -->
                     <rect x="106" y="52" width="10" height="30" rx="5" fill="url(#pinkEarGrad)"/>
                     <line x1="111" y1="52" x2="111" y2="24" stroke="#ff2a85" stroke-width="4.5" stroke-linecap="round"/>
                     <circle cx="111" cy="22" r="7.5" fill="#ff2a85" class="antenna-glow"/>
 
-                    <!-- Cápsula / Domo Amarillo Central -->
+                    <!-- Cápsula Amarilla Central -->
                     <rect x="47" y="16" width="36" height="15" rx="7.5" fill="url(#yellowCapGrad)" stroke="#ffb300" stroke-width="1.5"/>
 
                     <!-- Cabeza Principal redondeada blanca/lavanda -->
@@ -220,7 +218,7 @@
                     <!-- Visor Oscuro Curvo -->
                     <rect x="31" y="43" width="68" height="42" rx="19" fill="#181533" stroke="#251b4e" stroke-width="2"/>
 
-                    <!-- Ojos LED en cápsula vertical (Celestes con brillo) -->
+                    <!-- Ojos LED en cápsula vertical -->
                     <g id="bot-eyes-normal">
                         <rect id="bot-eye-l" x="46" y="52" width="11" height="23" rx="5.5" fill="url(#eyeBlueGrad)" filter="drop-shadow(0 0 6px #00f0ff)"/>
                         <rect id="bot-eye-r" x="73" y="52" width="11" height="23" rx="5.5" fill="url(#eyeBlueGrad)" filter="drop-shadow(0 0 6px #00f0ff)"/>
@@ -283,7 +281,7 @@
             </button>
         </div>
 
-        <!-- ESCENARIO DINÁMICO (CERO PREGUNTAS MULTIPLE CHOICE, SOLO ARRASTRAR / VINCULAR / COMPLETAR) -->
+        <!-- ESCENARIO DINÁMICO DE ACTIVIDADES -->
         <main class="relative flex-1 w-full flex flex-col items-center justify-center p-3 rounded-2xl sci-card overflow-hidden min-h-[420px] bg-gradient-to-b from-slate-900/95 to-blue-950/95">
             <svg id="laser-canvas"></svg>
 
@@ -540,8 +538,8 @@
             const friendly = voices.find(v => /Jorge|Sabina|Helena|Elvira|Monica|Paulina|Diego/i.test(v.name)) || voices[0];
             if (friendly) u.voice = friendly;
             u.lang = friendly?.lang || 'es-PE';
-            u.rate = 1.0; // Ágil y entusiasta
-            u.pitch = 1.25; // Voz de robot amigable
+            u.rate = 1.0;
+            u.pitch = 1.25;
             u.onstart = () => {
                 if (ticket !== voiceTicket) return;
                 $('#bot-container').classList.add('is-talking');
@@ -787,7 +785,7 @@
             {
                 title: "Clasificación de Esqueletos",
                 instruction: "Arrastra cada animal a su caja: Vertebrado (con huesos) o Invertebrado (sin huesos).",
-                demoAudio: "¡Bip-bop! Los vertebrados tienen columna y esqueleto interno, como el perro o el caballo[cite: 1, 2]. Los invertebrados no tienen huesos, como el pulpo o la mosca[cite: 1, 2]. ¡Arrastra o toca cada uno a su lugar!",
+                demoAudio: "¡Bip-bop! Los vertebrados tienen columna y esqueleto interno, como el perro o el caballo. Los invertebrados no tienen huesos, como el pulpo o la mosca. ¡Arrastra o toca cada uno a su lugar!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex gap-4 items-center">
@@ -847,11 +845,11 @@
                 }
             },
 
-            // 2. RAYO LÁSER: VINCULAR ESQUELETOS (FICHA 2)[cite: 2]
+            // 2. RAYO LÁSER: VINCULAR ESQUELETOS (FICHA 2)
             {
                 title: "Conexión Neural de Especies",
                 instruction: "1º Toca el animal a la izquierda y 2º Toca su característica a la derecha para unirlos con un rayo láser.",
-                demoAudio: "Conecta cada animal con su condición[cite: 2]: la rana y el águila tienen columna vertebral[cite: 2]; la araña y el caracol no tienen columna[cite: 2]. ¡Lanza los rayos!",
+                demoAudio: "Conecta cada animal con su condición: la rana y el águila tienen columna vertebral; la araña y el caracol no tienen columna. ¡Lanza los rayos!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex justify-between items-center w-full max-w-[240px]">
@@ -945,7 +943,7 @@
             {
                 title: "Ficha Biológica del Mamífero",
                 instruction: "Arrastra o toca cada rasgo para completar los datos biológicos de los mamíferos.",
-                demoAudio: "Los mamíferos nacen del vientre (vivíparos), tienen piel con pelo y maman leche de su mamá[cite: 3, 7]. ¡Arrastra cada ficha a su lugar!",
+                demoAudio: "Los mamíferos nacen del vientre (vivíparos), tienen piel con pelo y maman leche de su mamá. ¡Arrastra cada ficha a su lugar!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="text-sm font-bold text-white">Nacen del vientre: <span class="border-b-2 border-cyber-yellow text-cyber-yellow font-black">Vivíparos</span></div>
@@ -999,7 +997,7 @@
             {
                 title: "Desplazamiento por Aire y Agua",
                 instruction: "Arrastra cada animal a su zona de movimiento: Cielo (Vuelan) o Mar (Nadan).",
-                demoAudio: "El águila y la abeja van al cielo porque vuelan[cite: 4]. La ballena y el delfín van al mar porque nadan[cite: 4]. ¡Colócalos en su ambiente!",
+                demoAudio: "El águila y la abeja van al cielo porque vuelan. La ballena y el delfín van al mar porque nadan. ¡Colócalos en su ambiente!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex gap-3 text-sm">
@@ -1055,11 +1053,11 @@
                 }
             },
 
-            // 5. VINCULAR DERIVADOS DE ANIMALES (FICHA 4)[cite: 4]
+            // 5. VINCULAR DERIVADOS DE ANIMALES (FICHA 4)
             {
                 title: "Cadena de Derivados Animales",
                 instruction: "1º Toca el animal y 2º Toca el producto que nos da para unirlos con un rayo láser.",
-                demoAudio: "Conecta a cada animal con lo que nos proporciona[cite: 4]: la vaca da leche, la oveja lana, la abeja miel y el cerdo carne[cite: 4].",
+                demoAudio: "Conecta a cada animal con lo que nos proporciona: la vaca da leche, la oveja lana, la abeja miel y el cerdo carne.",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex justify-between items-center w-full max-w-[220px]">
@@ -1140,11 +1138,11 @@
                 }
             },
 
-            // 6. VINCULAR REPTILES CON SU NOMBRE (FICHAS 5 Y 6)[cite: 5, 6]
+            // 6. VINCULAR REPTILES CON SU NOMBRE (FICHAS 5 Y 6)
             {
                 title: "Identificador de Reptiles",
                 instruction: "1º Toca el reptil y 2º Toca su nombre para enlazarlos.",
-                demoAudio: "Los reptiles tienen escamas o caparazón[cite: 5]. Enlaza al cocodrilo, serpiente, tortuga y camaleón con sus nombres de la ficha[cite: 5, 6].",
+                demoAudio: "Los reptiles tienen escamas o caparazón. Enlaza al cocodrilo, serpiente, tortuga y camaleón con sus nombres de la ficha.",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex items-center gap-3">
@@ -1225,11 +1223,11 @@
                 }
             },
 
-            // 7. COMPLETAR RASGOS DE PECES (FICHA 7)[cite: 7]
+            // 7. COMPLETAR RASGOS DE PECES (FICHA 7)
             {
                 title: "Laboratorio de Peces",
                 instruction: "Arrastra o toca cada rasgo para completar cómo viven y respiran los peces.",
-                demoAudio: "Los peces viven en el agua, respiran por branquias y usan aletas para nadar[cite: 7]. ¡Completa las casillas!",
+                demoAudio: "Los peces viven en el agua, respiran por branquias y usan aletas para nadar. ¡Completa las casillas!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="text-sm font-bold text-white">Respiran por: <span class="text-cyber-cyan font-black border-b border-cyber-cyan">Branquias</span></div>
@@ -1279,11 +1277,11 @@
                 }
             },
 
-            // 8. ESTRUCTURA DE LAS AVES (FICHA 8)[cite: 8]
+            // 8. ESTRUCTURA DE LAS AVES (FICHA 8)
             {
                 title: "Estructura de las Aves",
                 instruction: "Arrastra cada parte de las aves a su casilla correspondiente.",
-                demoAudio: "Las aves tienen cuerpo con plumas, pico en lugar de dientes, dos alas para volar y nacen de huevos[cite: 8]. ¡Ubícalas!",
+                demoAudio: "Las aves tienen cuerpo con plumas, pico en lugar de dientes, dos alas para volar y nacen de huevos. ¡Ubícalas!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="text-sm font-bold text-white">Tienen pico en vez de... ➔ <span class="text-cyber-yellow font-black">Dientes</span></div>
@@ -1333,11 +1331,11 @@
                 }
             },
 
-            // 9. OVÍPAROS VS VIVÍPAROS (FICHA 7)[cite: 7]
+            // 9. OVÍPAROS VS VIVÍPAROS (FICHA 7)
             {
                 title: "¿Cómo Nacen los Animales?",
                 instruction: "Arrastra cada animal al NIDO (Ovíparo: nace de huevo) o al REGAZO (Vivíparo: vientre).",
-                demoAudio: "Ovíparo significa que nace de huevo (gallina, tortuga, rana)[cite: 7]. Vivíparo nace del vientre materno (vaca, gato, delfín)[cite: 7]. ¡Clasifícalos!",
+                demoAudio: "Ovíparo significa que nace de huevo (gallina, tortuga, rana). Vivíparo nace del vientre materno (vaca, gato, delfín). ¡Clasifícalos!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex gap-3 text-sm font-bold">
@@ -1397,7 +1395,7 @@
             {
                 title: "Hábitats: Terrestre, Acuático y Aéreo",
                 instruction: "Arrastra cada animal a su hábitat natural: Terrestre, Acuático o Aéreo.",
-                demoAudio: "Jirafa y elefante caminan en tierra[cite: 9]. Delfín y pez nadan en agua[cite: 9]. Paloma y águila vuelan en el aire[cite: 9]. ¡Colócalos!",
+                demoAudio: "Jirafa y elefante caminan en tierra. Delfín y pez nadan en agua. Paloma y águila vuelan en el aire. ¡Colócalos!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex gap-2 text-xs font-bold">
@@ -1462,12 +1460,12 @@
             {
                 title: "Las Partes de la Planta",
                 instruction: "Arrastra cada etiqueta al punto correcto de la planta.",
-                demoAudio: "¡Mira la planta de tu cuaderno! La raíz va abajo en la tierra, el tallo sube firme, las hojas verdes a los lados, la flor arriba y el fruto redondo[cite: 10, 11, 13, 14]. ¡Ubícalos!",
+                demoAudio: "¡Mira la planta de tu cuaderno! La raíz va abajo en la tierra, el tallo sube firme, las hojas verdes a los lados, la flor arriba y el fruto redondo. ¡Ubícalos!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex items-center gap-3">
                             <span class="text-4xl">🌻</span>
-                            <span class="text-xs text-cyber-yellow font-bold">Arrastra: Flor, Hoja, Tallo, Raíz, Fruto[cite: 10, 11, 13, 14]</span>
+                            <span class="text-xs text-cyber-yellow font-bold">Arrastra: Flor, Hoja, Tallo, Raíz, Fruto</span>
                         </div>
                     `;
                 },
@@ -1523,11 +1521,11 @@
                 }
             },
 
-            // 12. COMPLETAR LETRAS DE LAS PARTES (FICHA 11)[cite: 11]
+            // 12. COMPLETAR LETRAS DE LAS PARTES (FICHA 11)
             {
                 title: "Letras de la Planta",
                 instruction: "Arrastra la letra o dígrafo faltante para armar los nombres de tu ficha escolar.",
-                demoAudio: "En tu ficha recortaste y pegaste: F-L-O-R, H-O-J-A, T-A-LL-O, R-A-Í-Z[cite: 11]. ¡Coloca la ficha que falta en cada palabra!",
+                demoAudio: "En tu ficha recortaste y pegaste: F-L-O-R, H-O-J-A, T-A-LL-O, R-A-Í-Z. ¡Coloca la ficha que falta en cada palabra!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="text-base font-bold text-white">F L <span class="text-cyber-yellow border-b-2 border-cyber-yellow">O</span> R</div>
@@ -1583,7 +1581,7 @@
             {
                 title: "¿Es un Ser Vivo?",
                 instruction: "Arrastra cada elemento a SÍ (Ser vivo) o a NO (Objeto inerte).",
-                demoAudio: "Los seres vivos nacen, crecen, respiran y se alimentan[cite: 12]. El niño, perro y árbol SÍ están vivos[cite: 12]. El celular, mesa y piedra NO[cite: 12]. ¡Sepáralos!",
+                demoAudio: "Los seres vivos nacen, crecen, respiran y se alimentan. El niño, perro y árbol SÍ están vivos. El celular, mesa y piedra NO. ¡Sepáralos!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex gap-2 text-xs font-bold">
@@ -1639,11 +1637,11 @@
                 }
             },
 
-            // 14. ORDENAR EL CICLO DE VIDA DE LA PLANTA (FICHA 12)[cite: 12]
+            // 14. ORDENAR EL CICLO DE VIDA DE LA PLANTA (FICHA 12)
             {
                 title: "Ciclo de Vida de la Planta",
                 instruction: "Arrastra cada etapa en su orden de crecimiento: 1º Nace, 2º Crece, 3º Se reproduce, 4º Muere.",
-                demoAudio: "El ciclo de vida en tu ficha es: 1. Nace de la semilla, 2. Crece con hojas, 3. Se reproduce con flores y frutos, 4. Muere[cite: 12]. ¡Ordénalo!",
+                demoAudio: "El ciclo de vida en tu ficha es: 1. Nace de la semilla, 2. Crece con hojas, 3. Se reproduce con flores y frutos, 4. Muere. ¡Ordénalo!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex items-center gap-1 text-xs font-bold">
@@ -1699,11 +1697,11 @@
                 }
             },
 
-            // 15. COMPLETAR LA GRAN ORACIÓN (FICHA 12)[cite: 12]
+            // 15. COMPLETAR LA GRAN ORACIÓN (FICHA 12)
             {
                 title: "Constructor de la Oración",
                 instruction: "Toca o arrastra las palabras en orden para armar: 'Las plantas son seres vivos'.",
-                demoAudio: "En la ficha 12 recortaron los bloques[cite: 12]. Toca palabra por palabra en orden para armar: 'Las plantas son seres vivos'[cite: 12].",
+                demoAudio: "En la ficha escolar recortaron los bloques. Toca palabra por palabra en orden para armar: 'Las plantas son seres vivos'.",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="text-base font-black text-cyber-green">
@@ -1758,7 +1756,7 @@
             {
                 title: "Fábrica de Fotosíntesis",
                 instruction: "Arrastra los 3 elementos que necesita la planta (Luz solar, Agua/Nutrientes, Dióxido de carbono) a sus flechas.",
-                demoAudio: "¡Misión 16 de fotosíntesis! La planta toma Luz del sol, Agua por la raíz y Dióxido de carbono por las hojas[cite: 15, 16]. ¡Coloca los 3 elementos correctos!",
+                demoAudio: "¡Misión 16 de fotosíntesis! La planta toma Luz del sol, Agua por la raíz y Dióxido de carbono por las hojas. ¡Coloca los 3 elementos correctos!",
                 demoSetup: (box) => {
                     box.innerHTML = `
                         <div class="flex gap-2 text-xs font-bold">
@@ -1877,7 +1875,7 @@
                 btn.className = `p-2.5 rounded-2xl flex flex-col items-center justify-center font-bold text-xs border-2 transition-all ${
                     done ? 'bg-cyber-green/20 border-cyber-green text-cyber-green' : 'bg-slate-800 border-white/20 text-white hover:border-cyber-cyan'
                 }`;
-                btn.innerHTML = `<span class="text-base">${done ? '✓' : (i + 1)}</span><span class="text-[11px] text-center leading-tight">${gameLevels[i].title}</span>`;
+                btn.innerHTML = `<span class="text-base">${done ? '✓' : (i + 1)}</span><span class="text-[11px] text-center leading-tight font-black">${gameLevels[i].title}</span>`;
                 btn.onclick = () => {
                     $('#modal-menu').classList.add('hidden');
                     showLevelGuide(i);
